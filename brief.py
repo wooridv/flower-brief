@@ -74,8 +74,10 @@ def _num(v):
         return 0.0
 
 
-def _http(url, data=None, headers=None, timeout=30, retries=3):
-    hdr = {"User-Agent": "flower-brief/2.0"}
+def _http(url, data=None, headers=None, timeout=30, retries=6):
+    # flower.at.or.kr 는 해외 IP(예: GitHub Actions)에서 간헐적으로 연결을 끊는다
+    # (SSL UNEXPECTED_EOF). 재시도를 넉넉히 + 점증 대기.
+    hdr = {"User-Agent": "Mozilla/5.0 (flower-brief/2.0)"}
     if headers:
         hdr.update(headers)
     last = None
@@ -87,7 +89,8 @@ def _http(url, data=None, headers=None, timeout=30, retries=3):
                 return r.read().decode("utf-8")
         except Exception as e:  # noqa: BLE001
             last = e
-            time.sleep(1.2 * (i + 1))
+            if i < retries - 1:
+                time.sleep(1.0 + 1.5 * i)  # 1.0,2.5,4.0,5.5,7.0s
     raise RuntimeError("HTTP 실패(%s): %s" % (url, last))
 
 
@@ -176,13 +179,21 @@ def collect_auction_days(anchor, service_key, need):
     result = []
     day = anchor
     scanned = 0
+    fails = 0
     while len(result) < need and scanned < SCAN_LIMIT_DAYS:
         ds = day.strftime("%Y-%m-%d")
-        items = fetch_f001(ds, service_key)
-        if len(items) >= MIN_AUCTION_ROWS:
-            result.append((ds, items))
+        try:
+            items = fetch_f001(ds, service_key)
+            if len(items) >= MIN_AUCTION_ROWS:
+                result.append((ds, items))
+        except Exception as e:  # noqa: BLE001 - 한 날짜 실패가 전체를 죽이지 않도록 skip
+            fails += 1
+            print("  ! %s 조회 실패(skip): %s" % (ds, e))
+            if fails > 15:  # 연속적으로 대부분 실패하면 중단
+                break
         day -= dt.timedelta(days=1)
         scanned += 1
+        time.sleep(0.4)  # 서버 보호용 간격(연속 요청 차단 회피)
     return result
 
 
