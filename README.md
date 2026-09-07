@@ -1,0 +1,71 @@
+# 🌸 화훼 절화 경매 브리핑
+
+aT 화훼공판장(양재동)의 **절화 경매 정산가**를 매 평일 아침 09:00(KST)에
+**잔디(JANDI)** 로 요약 발송하고, 전체 상세는 **웹 대시보드(GitHub Pages)** 로 제공합니다.
+
+## 구성
+
+- **잔디 요약(7줄 이내)**: 총거래액·물량·품목수, 직전 경매 대비 상승/하락 TOP, 주요 품목 단가, 산지 TOP3, 상세 링크
+- **웹 대시보드**(모바일·PC 대응, 다크모드):
+  - 총괄(거래액 카운트업 + 전 경매 대비 등락 배지)
+  - **많이 나간 품목 TOP 10** — 거래액 점유율 애니메이션 막대
+  - **산지별 반입 지도** — 한국 시도 choropleth(색 진할수록 반입량↑) + 지역 랭킹
+  - 가격 상승/하락 TOP, 품목 요약표, 품종·등급별 전체 표(검색)
+  - **과거 경매일 탐색** — 상단 날짜 선택 + ◀▶ 로 지난 경매일 다시 보기(기본 최근 20경매일)
+
+## 데이터 출처
+
+- **f001 API**(`flower.at.or.kr/api/returnData.api`) — 품목/품종/등급별 정산 시세(등락 기준)
+- **실시간 경매 API**(`flower.at.or.kr/real/getRealData1.json`) — 산지(시도)별 물량(지도/랭킹)
+- 지도 경계: `korea_provinces.geojson`(레포에 번들된 경량 17개 시도 GeoJSON, 33KB)
+- 원본 실시간 상세: [flower.at.or.kr/real/real2.do](https://flower.at.or.kr/real/real2.do)
+
+## 동작 방식
+
+- 절화 정식 경매일은 **월·수·금**(행수 1,000+), 비경매일은 소량 잔여 거래뿐 → 자동 구분(임계값 200행).
+- 경매일 데이터는 **당일 아침엔 없고 그날 중 공개**되므로, 각 경매는 **다음 평일 아침**에 브리핑됩니다.
+  (금 경매→월 아침, 월 경매→화 아침)
+- `last_sent` 상태값으로 **같은 경매 중복 발송 방지**. 공휴일·임시공휴일은 데이터가 없어 자동 skip.
+
+## 설정 (GitHub Actions)
+
+1. 이 폴더를 **GitHub public 레포**로 push (Pages 무료 사용 · 꽃 경매가는 공개 데이터).
+2. **Settings → Secrets and variables → Actions** 에 등록:
+   - `FLOWER_SERVICE_KEY` = 발급받은 flower.at.or.kr 서비스키
+   - `JANDI_WEBHOOK_URL` = 잔디 Incoming Webhook URL
+3. **Settings → Pages → Source = "GitHub Actions"**.
+4. 끝. 매 평일 09:00 KST 자동 실행. 즉시 확인은 **Actions 탭 → Run workflow**.
+
+대시보드 주소: `https://<GitHub계정>.github.io/<레포이름>/`
+
+## 로컬 테스트 (외부 라이브러리 불필요, 파이썬 3.9+)
+
+```bash
+# .env.example → .env 복사 후 값 채우기
+
+python brief.py --dry-run --date 2026-09-04    # 특정 경매일 미리보기 + site/ 생성(발송 X)
+python brief.py --dry-run                       # 오늘 기준 자동(최신 경매일)
+python brief.py --test                          # 잔디 웹훅 연결 테스트
+python brief.py --no-state                      # 상태 무시하고 실제 발송
+
+# 대시보드 로컬 확인(정적 파일이라 서버 필요):
+python -m http.server 8777 --directory site     # → http://localhost:8777
+```
+
+옵션: `--days N`(과거 몇 경매일치 생성, 기본 20) 또는 환경변수 `BACKFILL_DAYS`.
+
+## 파일
+
+| 파일 | 설명 |
+|---|---|
+| `brief.py` | 데이터 수집·집계·등락/점유율 계산·사이트 생성·잔디 발송·상태관리 |
+| `app_html.py` | 웹 대시보드(SPA) HTML/CSS/JS |
+| `korea_provinces.geojson` | 산지 지도용 경량 한국 시도 경계(번들) |
+| `.github/workflows/flower-brief.yml` | 매 평일 09:00 KST 실행 + Pages 배포 |
+| `.env.example` · `.gitignore` | 로컬 환경변수 예시 · 제외 목록 |
+
+## 참고
+
+- 단가는 **원/속**, 수수료 미포함, 양재동 화훼공판장 전자경매 정산가 기준.
+- 튤립·카네이션 등 일부 품목은 **계절에 따라 없는 날**이 있어, 주요 품목 표기는 그날 존재하는 품목에서 자동 선택.
+- 산지 물량은 실시간 경매 API 기준(정정·하자처리 미반영 참고용), 시세는 f001 정산가 기준.

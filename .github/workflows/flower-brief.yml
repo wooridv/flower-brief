@@ -1,0 +1,67 @@
+name: 화훼 아침 브리핑
+
+on:
+  schedule:
+    # 00:00 UTC = 09:00 KST, 월~금 (GitHub 크론은 UTC 기준, 수 분 지연 가능)
+    - cron: "0 0 * * 1-5"
+  workflow_dispatch: {}   # 수동 실행 버튼
+
+# GitHub Pages 배포 권한
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 동시 실행 방지
+concurrency:
+  group: flower-brief
+  cancel-in-progress: false
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 파이썬 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # last_sent.txt 를 실행 간 유지(중복 발송 방지 상태값).
+      # key 는 매 실행 고유 → 항상 새로 저장, restore-keys 로 직전 값 복원.
+      - name: 상태 복원
+        uses: actions/cache@v4
+        with:
+          path: last_sent.txt
+          key: last-sent-${{ github.run_id }}
+          restore-keys: |
+            last-sent-
+
+      - name: 브리핑 실행
+        env:
+          FLOWER_SERVICE_KEY: ${{ secrets.FLOWER_SERVICE_KEY }}
+          JANDI_WEBHOOK_URL: ${{ secrets.JANDI_WEBHOOK_URL }}
+          # 대시보드 공개 URL(프로젝트 페이지 기본 형식) → 잔디 링크에 사용
+          REPORT_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          BACKFILL_DAYS: "20"   # 대시보드에서 과거 몇 경매일치를 볼지
+        run: python brief.py --out site
+
+      # site/ 가 비어있을 수 있으므로(경매 데이터 없을 때) 최소 파일 보장
+      - name: 리포트 폴더 보장
+        run: |
+          mkdir -p site
+          [ -f site/index.html ] || echo '<!doctype html><meta charset="utf-8"><p>아직 브리핑이 없습니다.</p>' > site/index.html
+
+      - name: Pages 아티팩트 업로드
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: GitHub Pages 배포
+        id: deploy
+        uses: actions/deploy-pages@v4
