@@ -57,6 +57,14 @@ jobs:
           mkdir -p site
           [ -f site/index.html ] || echo '<!doctype html><meta charset="utf-8"><p>아직 브리핑이 없습니다.</p>' > site/index.html
 
+      # 화훼 뉴스 브리핑 페이지(별도 시스템)를 같은 Pages 배포에 함께 실음 → /news/
+      # news_data 는 뉴스 워크플로가 레포에 커밋한 아카이브(JSON). news_site.html 은 SPA.
+      - name: 뉴스 페이지 번들
+        run: |
+          mkdir -p site/news/data
+          [ -f news_site.html ] && cp news_site.html site/news/index.html || true
+          cp news_data/*.json site/news/data/ 2>/dev/null || true
+
       - name: Pages 아티팩트 업로드
         uses: actions/upload-pages-artifact@v3
         with:

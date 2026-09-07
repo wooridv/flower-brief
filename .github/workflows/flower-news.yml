@@ -2,8 +2,7 @@ name: 화훼 뉴스 아침 브리핑
 
 on:
   schedule:
-    # 23:00 UTC = 익일 08:00 KST, 월~금(KST). GitHub 크론은 UTC 기준(수 분 지연 가능).
-    #   월 08:00 KST = 일 23:00 UTC … 금 08:00 KST = 목 23:00 UTC  → UTC 요일 0~4
+    # 23:00 UTC = 익일 08:00 KST, 월~금(KST). (UTC 요일 0~4)
     - cron: "0 23 * * 0-4"
   workflow_dispatch:
     inputs:
@@ -11,6 +10,10 @@ on:
         description: "공휴일 게이트/중복방지 무시하고 강제 발송"
         type: boolean
         default: false
+
+# news_data 아카이브를 레포에 커밋(push)하기 위해 쓰기 권한 필요
+permissions:
+  contents: write
 
 concurrency:
   group: flower-news
@@ -28,11 +31,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      # 발송일(평일·비공휴일) 판별 → steps.gate.outputs.skip
       - name: 발송일 판별
         id: gate
         env:
-          # (선택) data.go.kr 특일정보 서비스키. 없으면 번들 공휴일표 사용.
           HOLIDAY_SERVICE_KEY: ${{ secrets.HOLIDAY_SERVICE_KEY }}
         run: python news_holiday.py --github
 
@@ -50,8 +51,7 @@ jobs:
         if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
         run: npm install -g @anthropic-ai/claude-code
 
-      # 중복방지 상태(news_last_sent.txt) 유지
-      - name: 상태 복원
+      - name: 중복방지 상태 복원
         if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
         uses: actions/cache@v4
         with:
@@ -60,7 +60,7 @@ jobs:
           restore-keys: |
             news-last-sent-
 
-      - name: 뉴스 브리핑 생성 (Claude 구독 · 웹검색)
+      - name: 뉴스 생성 (Claude 구독 · 웹검색 → JSON)
         if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -70,14 +70,30 @@ jobs:
           PROMPT="오늘은 ${TODAY} 입니다.
 
           $(cat news_prompt.md)"
-          echo "::group::브리핑 생성 중"
+          echo "::group::생성 중"
           claude -p "$PROMPT" \
             --allowedTools "WebSearch" "WebFetch" \
-            --output-format text > news.txt || {
-              echo "claude 실행 실패"; exit 1; }
+            --output-format text > raw.json || { echo "claude 실행 실패"; exit 1; }
           echo "::endgroup::"
-          echo "----- 생성 결과 -----"
-          cat news.txt
+          echo "----- 원본(JSON) -----"; cat raw.json
+
+      - name: 아카이브 + 잔디 발송본 생성
+        if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
+        run: python news_build.py raw.json --data-dir news_data --jandi-out jandi.txt
+
+      - name: 아카이브 커밋(push)
+        if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
+        run: |
+          git config user.name "flower-news-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add news_data
+          if git diff --cached --quiet; then
+            echo "아카이브 변경 없음"
+          else
+            git commit -m "뉴스 아카이브 업데이트: $(TZ=Asia/Seoul date +%F)"
+            git pull --rebase origin main || true
+            git push
+          fi
 
       - name: 잔디 발송
         if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
@@ -85,7 +101,7 @@ jobs:
           JANDI_NEWS_WEBHOOK_URL: ${{ secrets.JANDI_NEWS_WEBHOOK_URL }}
         run: |
           if [ "${{ github.event.inputs.force }}" = "true" ]; then
-            python news_send_jandi.py news.txt --force
+            python news_send_jandi.py jandi.txt --force
           else
-            python news_send_jandi.py news.txt
+            python news_send_jandi.py jandi.txt
           fi

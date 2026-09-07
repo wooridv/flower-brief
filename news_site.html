@@ -1,0 +1,403 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>화훼 아침 브리핑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#F4F2EC; --bg-2:#EDEAE1; --card:#FFFFFF; --ink:#191C1A; --ink-2:#5C665E;
+    --rose:#CE4360; --rose-deep:#A62C46; --leaf:#2E7D54; --line:#E4DFD4;
+    --chip:#EDE8DC; --chip-ink:#5b5446; --glow:rgba(206,67,96,.14);
+    --shadow:0 1px 2px rgba(30,30,20,.05), 0 20px 44px -26px rgba(40,50,30,.35);
+    --petal:#D67288; --petal2:#7FB98A;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0D100E; --bg-2:#12160F; --card:#161B16; --ink:#ECEAE1; --ink-2:#9BA498;
+      --rose:#F0879E; --rose-deep:#F5A2B4; --leaf:#7FCB97; --line:#252B24;
+      --chip:#20261F; --chip-ink:#B7BFAD; --glow:rgba(240,135,158,.16);
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 24px 50px -28px rgba(0,0,0,.8);
+      --petal:#E4738A; --petal2:#7FB98A;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0D100E; --bg-2:#12160F; --card:#161B16; --ink:#ECEAE1; --ink-2:#9BA498;
+    --rose:#F0879E; --rose-deep:#F5A2B4; --leaf:#7FCB97; --line:#252B24;
+    --chip:#20261F; --chip-ink:#B7BFAD; --glow:rgba(240,135,158,.16);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 24px 50px -28px rgba(0,0,0,.8);
+    --petal:#E4738A; --petal2:#7FB98A;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Noto Sans KR",system-ui,sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  #petals{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.9}
+  .app{position:relative; z-index:1; max-width:760px; margin:0 auto; padding:0 18px 64px}
+
+  /* Top bar */
+  .bar{
+    position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:14px;
+    padding:14px 4px; margin-bottom:8px;
+    background:color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:9px; font-weight:900; font-size:16px; letter-spacing:-.01em}
+  .brand .dot{
+    width:11px; height:11px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--rose-deep), var(--rose));
+    box-shadow:0 0 0 4px var(--glow);
+  }
+  .brand small{font-family:"Archivo",sans-serif; font-weight:700; font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-2); margin-left:2px}
+  .nav{margin-left:auto; display:flex; align-items:center; gap:6px}
+  .navbtn{
+    width:34px; height:34px; border-radius:10px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink); font-size:15px; cursor:pointer;
+    display:grid; place-items:center; transition:transform .15s, border-color .15s, opacity .15s;
+  }
+  .navbtn:hover:not(:disabled){transform:translateY(-1px); border-color:var(--ink-2)}
+  .navbtn:disabled{opacity:.32; cursor:default}
+  .navbtn:focus-visible{outline:2px solid var(--rose); outline-offset:2px}
+  .archivebtn{
+    height:34px; padding:0 12px; border-radius:10px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink); font-size:12.5px; font-weight:700; cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px; transition:border-color .15s, transform .15s;
+  }
+  .archivebtn:hover{transform:translateY(-1px); border-color:var(--ink-2)}
+  .archivebtn:focus-visible{outline:2px solid var(--rose); outline-offset:2px}
+
+  /* Hero */
+  .hero{padding:26px 4px 8px}
+  .kicker{
+    font-family:"Archivo",sans-serif; font-weight:700; font-size:11px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--leaf); display:flex; align-items:center; gap:9px;
+  }
+  .kicker::before{content:""; width:22px; height:2px; background:var(--leaf)}
+  .bigdate{
+    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin:14px 0 6px;
+  }
+  .bigdate .num{
+    font-family:"Archivo",sans-serif; font-weight:900; font-size:clamp(44px,12vw,84px);
+    line-height:.9; letter-spacing:-.03em; color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .bigdate .num .sl{color:var(--rose)}
+  .bigdate .meta{display:flex; flex-direction:column; gap:3px; padding-bottom:6px}
+  .bigdate .yr{font-family:"Archivo",sans-serif; font-weight:700; font-size:15px; color:var(--ink-2); letter-spacing:.02em}
+  .bigdate .dow{
+    align-self:flex-start; font-weight:900; font-size:13px; color:#fff;
+    background:var(--rose); padding:2px 12px; border-radius:999px;
+  }
+  :root[data-theme="dark"] .bigdate .dow, :root:not([data-theme="light"]) .bigdate .dow{color:#12160F}
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .bigdate .dow{color:#12160F} }
+  .lead{
+    font-size:clamp(19px,3.4vw,24px); font-weight:700; line-height:1.4; letter-spacing:-.015em;
+    text-wrap:balance; margin:8px 0 0; max-width:30ch;
+  }
+
+  /* Stage (animated content swap) */
+  .stage{margin-top:22px}
+  .fade-enter{animation:fadeUp .5s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:none}}
+
+  /* Items */
+  .items{display:flex; flex-direction:column; gap:2px}
+  .item{
+    display:grid; grid-template-columns:44px 1fr; gap:16px; align-items:start;
+    padding:20px 6px; border-top:1px solid var(--line);
+    animation:itemIn .5s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .item:first-child{border-top:none}
+  @keyframes itemIn{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+  .mark{
+    width:44px; height:44px; border-radius:13px; display:grid; place-items:center;
+    background:var(--chip); font-size:22px; line-height:1;
+    transition:transform .25s cubic-bezier(.2,.7,.2,1);
+  }
+  .item:hover .mark{transform:translateY(-2px) rotate(-4deg)}
+  .body{min-width:0}
+  .head{font-weight:700; font-size:17.5px; line-height:1.45; letter-spacing:-.01em}
+  .head .hot{color:var(--rose-deep)}
+  .head .up{color:var(--leaf)}
+  .desc{color:var(--ink-2); font-size:14.5px; margin-top:4px; line-height:1.55}
+  .foot{margin-top:9px; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .src{
+    display:inline-flex; align-items:center; gap:6px; max-width:100%;
+    font-size:12.5px; font-weight:600; color:var(--ink-2); text-decoration:none;
+    border:1px solid var(--line); border-radius:999px; padding:3px 11px 3px 9px;
+    transition:border-color .15s, color .15s, transform .15s;
+  }
+  .src::before{content:"↗"; color:var(--leaf); font-size:11px; transition:transform .2s}
+  .src:hover{color:var(--ink); border-color:var(--ink-2); transform:translateY(-1px)}
+  .src:hover::before{transform:translate(1px,-1px)}
+  .src:focus-visible{outline:2px solid var(--rose); outline-offset:2px}
+  .src span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .season{font-size:12px; font-weight:700; color:var(--leaf); display:inline-flex; align-items:center; gap:5px}
+  .season::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--leaf)}
+
+  /* Keywords */
+  .keys{margin-top:26px; padding-top:22px; border-top:1px solid var(--line)}
+  .keys h2{
+    font-family:"Archivo",sans-serif; font-weight:700; font-size:11px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--ink-2); margin:0 0 12px;
+  }
+  .tags{display:flex; flex-wrap:wrap; gap:9px}
+  .tag{
+    font-size:13.5px; font-weight:500; color:var(--chip-ink); background:var(--chip);
+    border-radius:9px; padding:6px 13px; transition:transform .15s;
+    animation:itemIn .5s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .tag:hover{transform:translateY(-2px)}
+  .tag.lead-tag{color:#fff; background:linear-gradient(120deg,var(--rose-deep),var(--rose))}
+  :root[data-theme="dark"] .tag.lead-tag, :root:not([data-theme="light"]) .tag.lead-tag{color:#12160F}
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .tag.lead-tag{color:#12160F} }
+
+  footer{margin-top:34px; padding-top:20px; border-top:1px solid var(--line); color:var(--ink-2); font-size:12px; line-height:1.7}
+  footer b{color:var(--ink)}
+
+  /* Archive drawer */
+  .scrim{position:fixed; inset:0; z-index:20; background:rgba(10,12,10,.5); opacity:0; pointer-events:none; transition:opacity .25s; backdrop-filter:blur(2px)}
+  .scrim.open{opacity:1; pointer-events:auto}
+  .drawer{
+    position:fixed; z-index:21; top:0; right:0; height:100%; width:min(340px,86vw);
+    background:var(--card); border-left:1px solid var(--line); box-shadow:var(--shadow);
+    transform:translateX(100%); transition:transform .32s cubic-bezier(.3,.8,.3,1);
+    display:flex; flex-direction:column;
+  }
+  .drawer.open{transform:none}
+  .drawer .dh{display:flex; align-items:center; justify-content:space-between; padding:20px; border-bottom:1px solid var(--line)}
+  .drawer .dh h3{margin:0; font-size:15px; font-weight:900; letter-spacing:-.01em}
+  .drawer .dh h3 small{display:block; font-family:"Archivo",sans-serif; font-weight:700; font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-2); margin-top:3px}
+  .closex{width:32px; height:32px; border-radius:9px; border:1px solid var(--line); background:transparent; color:var(--ink); font-size:16px; cursor:pointer}
+  .closex:focus-visible{outline:2px solid var(--rose); outline-offset:2px}
+  .datelist{overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:2px}
+  .datebtn{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left; cursor:pointer;
+    background:transparent; border:none; border-radius:11px; padding:12px 12px; color:var(--ink);
+    transition:background .15s;
+  }
+  .datebtn:hover{background:var(--bg-2)}
+  .datebtn.active{background:var(--chip)}
+  .datebtn:focus-visible{outline:2px solid var(--rose); outline-offset:-2px}
+  .datebtn .dnum{font-family:"Archivo",sans-serif; font-weight:900; font-size:19px; min-width:52px; font-variant-numeric:tabular-nums}
+  .datebtn .dnum .sl{color:var(--rose)}
+  .datebtn .dmeta{min-width:0}
+  .datebtn .dw{font-size:11px; font-weight:700; color:var(--ink-2)}
+  .datebtn .dl{font-size:13px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:1px}
+  .datebtn.active .dnum .sl{color:var(--rose-deep)}
+
+  @media (max-width:520px){
+    .item{grid-template-columns:38px 1fr; gap:13px; padding:17px 4px}
+    .mark{width:38px; height:38px; font-size:19px; border-radius:11px}
+    .head{font-size:16px}
+  }
+</style>
+
+<canvas id="petals" aria-hidden="true"></canvas>
+
+<div class="app">
+  <div class="bar">
+    <div class="brand"><span class="dot"></span>화훼 아침 브리핑<small>DAILY</small></div>
+    <div class="nav">
+      <button class="navbtn" id="prev" aria-label="이전 브리핑">◀</button>
+      <button class="navbtn" id="next" aria-label="다음 브리핑">▶</button>
+      <button class="archivebtn" id="openArchive" aria-label="지난 브리핑 보기">🗓️ 지난 브리핑</button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div class="kicker" id="kicker">절화 시장 뉴스 &amp; 유행</div>
+    <div class="bigdate">
+      <div class="num" id="bigNum">9<span class="sl">/</span>7</div>
+      <div class="meta">
+        <span class="yr" id="bigYr">2026</span>
+        <span class="dow" id="bigDow">월요일</span>
+      </div>
+    </div>
+    <p class="lead" id="lead">오늘의 시장을 한 줄로.</p>
+  </section>
+
+  <div class="stage" id="stage"></div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="지난 브리핑" aria-hidden="true">
+  <div class="dh">
+    <h3>지난 브리핑<small>ARCHIVE</small></h3>
+    <button class="closex" id="closeArchive" aria-label="닫기">✕</button>
+  </div>
+  <div class="datelist" id="datelist"></div>
+</aside>
+
+<script>
+// ── Seed archive (실제 2026년 화훼 뉴스로 시드; 배포 시 ./data/*.json 이 우선) ──
+const SEED = {
+  latest: "2026-09-07",
+  dates: [
+    {date:"2026-09-07", weekday:"월", lead:"추석 성수 국화 강세, 공급난에 절화값 상승"},
+    {date:"2026-09-04", weekday:"금", lead:"일상 꽃 소비 확대, 지속가능 포장 부상"},
+    {date:"2026-09-03", weekday:"목", lead:"글로벌 공급난 여파, 이벤트 수요 재편"}
+  ],
+  days: {
+    "2026-09-07": {
+      date:"2026-09-07", weekday:"월", lead:"추석 성수 국화 강세, 공급난에 절화값 상승",
+      items:[
+        {icon:"🕯️", head:"추석 성묘 시즌 임박 <span class='hot'>국화 수요 강세</span>", desc:"연휴 9/24~27 앞두고 백국·소국 등 국화 수요가 강세로 진입. 물량·저장 확보를 서두를 때.", season:"계절 이슈 · 명절 성수 대비"},
+        {icon:"📈", head:"글로벌 화훼 공급난 지속…국내 절화값 <span class='up'>상승세</span>", desc:"수입 물량 감소로 국내 가격이 오르고 품종 선택 폭이 좁아지는 흐름.", url:"https://www.koreaiin.com/news/897762", src:"한국IT산업뉴스 · 글로벌 공급난"},
+        {icon:"🎨", head:"2026 트렌드: <span class='hot'>조형 부케</span>·모노톤 팔레트", desc:"조각 빚듯 형태를 계산하는 조형적 디자인과 단색 조합이 인기.", url:"https://www.koreaiin.com/news/903545", src:"한국IT산업뉴스 · 2026 꽃꽂이 트렌드"},
+        {icon:"🧺", head:"2.5만원 미만 <span class='hot'>꽃 정기구독</span> 확산", desc:"'일상 꽃 소비' 문화로 저가·소량 수요가 늘어나는 추세.", url:"https://www.koreaiin.com/news/911306", src:"한국IT산업뉴스 · 구독 확산"},
+        {icon:"⚠️", head:"고물가에 명절·경조사 꽃 수요 위축", desc:"시장 전반이 관망세. 대량 매입보다 회전 중심 운영이 안전.", url:"https://www.koreaiin.com/news/903510", src:"한국IT산업뉴스 · 5월 대목 실종"}
+      ],
+      keywords:["국화·추석 성수","조형 부케","모노톤 팔레트","꽃 구독","수입 공급난"]
+    },
+    "2026-09-04": {
+      date:"2026-09-04", weekday:"금", lead:"일상 꽃 소비 확대, 지속가능 포장 부상",
+      items:[
+        {icon:"🧺", head:"드라이플라워·<span class='hot'>꽃 구독</span> 등 일상 소비 확산", desc:"특별한 날 선물에서 일상의 소비로 이동. 소량·정기 수요가 커지는 국면.", url:"https://www.koreaiin.com/news/911306", src:"한국IT산업뉴스 · 여름 꽃 트렌드"},
+        {icon:"🌱", head:"2030세대 중심 <span class='up'>친환경·재활용 포장</span> 선호", desc:"지속가능성이 구매 기준으로 자리잡으며 친환경 인증·포장재 수요 증가.", url:"https://www.koreaiin.com/news/899533", src:"한국IT산업뉴스 · 지속가능성"},
+        {icon:"🎭", head:"향수·호기심·지속가능성 3축으로 트렌드 재편", desc:"감성·서사·환경 가치를 앞세운 디자인이 시장을 바꾸는 중.", url:"https://www.koreaiin.com/news/900449", src:"한국IT산업뉴스 · 2026 화훼 트렌드"},
+        {icon:"⚠️", head:"고물가로 '5월 대목' 실종…경조사 수요 둔화", desc:"명절·행사 꽃 수요 위축이 이어지며 전체 시장 규모 축소.", url:"https://www.koreaiin.com/news/903510", src:"한국IT산업뉴스 · 고물가 악재"}
+      ],
+      keywords:["꽃 구독","드라이플라워","지속가능 포장","향수 디자인"]
+    },
+    "2026-09-03": {
+      date:"2026-09-03", weekday:"목", lead:"글로벌 공급난 여파, 이벤트 수요 재편",
+      items:[
+        {icon:"📈", head:"글로벌 화훼 공급난, 한국 시장 <span class='up'>가격 급등</span> 여파", desc:"전 세계 공급난이 국내 가격과 품종 선택에 직접 영향.", url:"https://www.koreaiin.com/news/897762", src:"한국IT산업뉴스 · 공급난 여파"},
+        {icon:"💐", head:"이벤트·플라워 디자인 트렌드 변화", desc:"조형·단색 부케가 부상하며 이벤트 수요의 결이 달라지는 중.", url:"https://www.koreaiin.com/news/903654", src:"한국IT산업뉴스 · 봄 이벤트 트렌드"},
+        {icon:"🌿", head:"조각 빚듯…'<span class='hot'>조형적 플로리스트리</span>' 정체성 뚜렷", desc:"공간과 형태를 계산하는 디자인이 한층 또렷해지는 흐름.", url:"https://www.koreaiin.com/news/903545", src:"한국IT산업뉴스 · 꽃꽂이 트렌드"}
+      ],
+      keywords:["수입 공급난","이벤트 플라워","조형 부케"]
+    }
+  }
+};
+const DOW_FULL = {"월":"월요일","화":"화요일","수":"수요일","목":"목요일","금":"금요일","토":"토요일","일":"일요일"};
+
+let INDEX = {latest:SEED.latest, dates:SEED.dates.slice()};
+const cache = Object.assign({}, SEED.days);
+let cur = SEED.latest;
+
+async function tryJSON(url){
+  try{ const r = await fetch(url, {cache:"no-store"}); if(!r.ok) throw 0; return await r.json(); }
+  catch(e){ return null; }
+}
+async function getDay(date){
+  if(cache[date]) return cache[date];
+  const d = await tryJSON("./data/"+date+".json");
+  if(d){ cache[date]=d; return d; }
+  return SEED.days[date] || null;
+}
+function esc(s){ return (s==null?"":String(s)); }
+
+function render(day, animate){
+  const [y,m,d] = day.date.split("-");
+  document.getElementById("bigNum").innerHTML = (+m)+"<span class='sl'>/</span>"+(+d);
+  document.getElementById("bigYr").textContent = y;
+  document.getElementById("bigDow").textContent = DOW_FULL[day.weekday]||day.weekday;
+  document.getElementById("lead").textContent = day.lead || "";
+
+  const stage = document.getElementById("stage");
+  const items = (day.items||[]).map((it,i)=>{
+    const foot = it.season
+      ? `<span class="season">${esc(it.season)}</span>`
+      : (it.url ? `<a class="src" href="${esc(it.url)}" target="_blank" rel="noopener"><span>${esc(it.src||"출처 보기")}</span></a>` : "");
+    return `<article class="item" style="animation-delay:${animate? (60+i*70):0}ms">
+      <div class="mark">${esc(it.icon||"🌷")}</div>
+      <div class="body">
+        <div class="head">${esc(it.head)}</div>
+        ${it.desc?`<div class="desc">${esc(it.desc)}</div>`:""}
+        <div class="foot">${foot}</div>
+      </div>
+    </article>`;
+  }).join("");
+  const keys = (day.keywords||[]).map((k,i)=>
+    `<span class="tag${i===0?" lead-tag":""}" style="animation-delay:${animate?(140+i*55):0}ms">${esc(k)}</span>`).join("");
+
+  stage.innerHTML =
+    `<div class="items">${items}</div>
+     <section class="keys"><h2>오늘의 키워드</h2><div class="tags">${keys}</div></section>
+     <footer><b>🌷 화훼 아침 브리핑</b> — 매 평일 아침, 화훼·절화 시장 뉴스와 유행을 모아 전합니다. 주말·공휴일·대체공휴일은 자동 제외. 시세·수급은 참고용.</footer>`;
+
+  if(animate){ stage.classList.remove("fade-enter"); void stage.offsetWidth; stage.classList.add("fade-enter"); }
+  updateNav();
+  buildDateList();
+}
+function idxOf(date){ return INDEX.dates.findIndex(x=>x.date===date); }
+function updateNav(){
+  const i = idxOf(cur);
+  // dates are newest-first
+  document.getElementById("next").disabled = (i<=0);
+  document.getElementById("prev").disabled = (i>=INDEX.dates.length-1);
+}
+async function go(date){
+  const day = await getDay(date);
+  if(!day) return;
+  cur = date; render(day, true);
+}
+function buildDateList(){
+  const wrap = document.getElementById("datelist");
+  wrap.innerHTML = INDEX.dates.map(x=>{
+    const [_,m,d]=x.date.split("-");
+    return `<button class="datebtn${x.date===cur?" active":""}" data-date="${x.date}">
+      <span class="dnum">${(+m)}<span class="sl">/</span>${(+d)}</span>
+      <span class="dmeta"><span class="dw">${x.weekday}요일</span><span class="dl">${esc(x.lead||"")}</span></span>
+    </button>`;
+  }).join("");
+  wrap.querySelectorAll(".datebtn").forEach(b=>b.addEventListener("click",()=>{ go(b.dataset.date); closeDrawer(); }));
+}
+// nav wiring
+document.getElementById("prev").addEventListener("click",()=>{ const i=idxOf(cur); if(i<INDEX.dates.length-1) go(INDEX.dates[i+1].date); });
+document.getElementById("next").addEventListener("click",()=>{ const i=idxOf(cur); if(i>0) go(INDEX.dates[i-1].date); });
+const drawer=document.getElementById("drawer"), scrim=document.getElementById("scrim");
+function openDrawer(){ drawer.classList.add("open"); scrim.classList.add("open"); drawer.setAttribute("aria-hidden","false"); }
+function closeDrawer(){ drawer.classList.remove("open"); scrim.classList.remove("open"); drawer.setAttribute("aria-hidden","true"); }
+document.getElementById("openArchive").addEventListener("click",openDrawer);
+document.getElementById("closeArchive").addEventListener("click",closeDrawer);
+scrim.addEventListener("click",closeDrawer);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeDrawer(); });
+
+// boot: live data overrides seed
+(async ()=>{
+  const idx = await tryJSON("./data/index.json");
+  if(idx && idx.dates && idx.dates.length){
+    INDEX = idx; cur = idx.latest || idx.dates[0].date;
+  }
+  const day = await getDay(cur);
+  render(day || SEED.days[SEED.latest], false);
+})();
+
+// ── Motion: drifting petals ──
+(function(){
+  const c=document.getElementById("petals"), x=c.getContext("2d");
+  const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  let W,H,petals,raf;
+  function col(){ return getComputedStyle(document.documentElement).getPropertyValue("--petal").trim()||"#D67288"; }
+  function col2(){ return getComputedStyle(document.documentElement).getPropertyValue("--petal2").trim()||"#7FB98A"; }
+  function resize(){ W=c.width=innerWidth*devicePixelRatio; H=c.height=innerHeight*devicePixelRatio; c.style.width=innerWidth+"px"; c.style.height=innerHeight+"px"; }
+  function mk(){ return {x:Math.random()*W, y:Math.random()*H, r:(6+Math.random()*9)*devicePixelRatio, s:(.25+Math.random()*.5)*devicePixelRatio, sway:Math.random()*Math.PI*2, sw:.008+Math.random()*.014, rot:Math.random()*Math.PI, vr:(Math.random()-.5)*.01, a:.14+Math.random()*.22, g:Math.random()<.28}; }
+  function init(){ resize(); petals=Array.from({length: innerWidth<560?13:22}, mk); }
+  function petal(p){
+    x.save(); x.translate(p.x,p.y); x.rotate(p.rot); x.globalAlpha=p.a;
+    x.fillStyle = p.g?col2():col();
+    x.beginPath(); x.ellipse(0,0,p.r,p.r*0.56,0,0,Math.PI*2); x.fill();
+    x.restore();
+  }
+  function frame(){
+    x.clearRect(0,0,W,H);
+    for(const p of petals){
+      p.sway+=p.sw; p.x+=Math.sin(p.sway)*.5*devicePixelRatio; p.y+=p.s; p.rot+=p.vr;
+      if(p.y-p.r>H){ p.y=-p.r*2; p.x=Math.random()*W; }
+      petal(p);
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  init();
+  if(reduce){ for(const p of petals) petal(p); }   // static resting frame
+  else frame();
+  addEventListener("resize",()=>{ cancelAnimationFrame(raf); init(); if(reduce){for(const p of petals)petal(p);} else frame(); });
+})();
+</script>

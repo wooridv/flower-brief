@@ -4,4 +4,6 @@ __pycache__/
 last_sent.txt
 news_last_sent.txt
 news.txt
+raw.json
+jandi.txt
 site/

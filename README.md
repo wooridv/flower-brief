@@ -75,7 +75,7 @@ python -m http.server 8777 --directory site     # → http://localhost:8777
 # 🌷 화훼 뉴스 아침 브리핑 (별도 시스템)
 
 경매 정산가(숫자) 브리핑과 **별개**로, 매 평일 아침 **화훼·절화 시장 뉴스/유행/분위기**를
-**Claude(구독 요금제)** 가 웹검색·요약해 **잔디**로 7줄 이내 발송합니다.
+**Claude(구독 요금제)** 가 웹검색해 **잔디**(7줄 요약)와 **웹 뉴스 사이트**로 전합니다.
 (예: "무슨 꽃이 유행", "시세 오름/내림 분위기", "계절·행사 수요", 관련 뉴스 + 출처 링크)
 
 ## 동작 방식
@@ -83,11 +83,17 @@ python -m http.server 8777 --directory site     # → http://localhost:8777
 1. **발송일 판별**(`news_holiday.py`): 주말·공휴일·대체공휴일이면 자동 skip.
    - `HOLIDAY_SERVICE_KEY`(data.go.kr 특일정보) 있으면 자동 최신화, 없으면 번들 공휴일표(2026~2027).
 2. **뉴스 생성**: GitHub Actions가 **Claude Code CLI를 구독 토큰으로** 실행 → 웹검색으로 최신 화훼
-   정보를 모아 `news_prompt.md` 형식대로 7줄 브리핑 텍스트 생성(API 종량제 아님, 구독 사용).
-3. **발송**(`news_send_jandi.py`): 생성 텍스트를 검증·정리 후 잔디로 발송. 같은 날 중복발송 방지.
-   - 경매 브리핑(핑크)과 구분되도록 **초록색** 커넥트 컬러 사용.
+   정보를 모아 `news_prompt.md` 규격의 **JSON**으로 생성(API 종량제 아님, 구독 사용).
+3. **취합**(`news_build.py`): JSON을 검증해 오늘 날짜로 `news_data/<date>.json` 저장 +
+   `news_data/index.json`(최신순 목록) 갱신 → **아카이브를 레포에 커밋**. 동시에 잔디 발송본(7줄) 생성.
+4. **발송**(`news_send_jandi.py`): 잔디 발송본을 검증·발송(같은 날 중복방지). 경매(핑크)와 구분해 **초록색**.
+5. **웹 사이트**(`news_site.html`): 최신+과거 브리핑을 보여주는 SPA. 경매 대시보드 Pages에 **함께 배포**(`/news/`).
+   - 고딕 디자인 · 꽃잎 모션 · ◀▶/🗓️ 지난 브리핑 아카이브 · 뉴스별 출처 링크.
+   - 뉴스 페이지는 경매 워크플로가 `news_data`+`news_site.html`을 `site/news/`로 복사해 배포하므로,
+     **웹 갱신은 경매 배포 시각(09:00)**, 잔디는 08:00.
 
-- 실행 시각: 매 평일 **08:00 KST**(경매 브리핑 09:00 직전). 크론 `0 23 * * 0-4`(UTC).
+- 실행 시각: 매 평일 **08:00 KST**(잔디). 크론 `0 23 * * 0-4`(UTC).
+- 뉴스 사이트 주소: `https://<계정>.github.io/<레포>/news/`
 
 ## 설정 (GitHub Actions)
 
@@ -106,24 +112,32 @@ python -m http.server 8777 --directory site     # → http://localhost:8777
 
 ```bash
 python news_holiday.py --date 2026-09-28     # 발송일 판별(SKIP/GO)
-python news_send_jandi.py sample.txt --dry-run   # 발송 본문 정리 미리보기(발송 X)
+python news_build.py raw.json --data-dir news_data --jandi-out jandi.txt  # JSON→아카이브+발송본
+python news_send_jandi.py jandi.txt --dry-run    # 발송 본문 미리보기(발송 X)
 python news_send_jandi.py --test             # 잔디 웹훅 연결 테스트
 
-# 생성까지 로컬에서 돌려보기(로그인된 claude CLI 사용):
+# 생성까지 로컬에서(로그인된 claude CLI 필요):
 TODAY="$(date '+%Y년 %m월 %d일')"
 claude -p "오늘은 ${TODAY} 입니다.
 
-$(cat news_prompt.md)" --allowedTools "WebSearch" "WebFetch" > news.txt
-python news_send_jandi.py news.txt --dry-run
+$(cat news_prompt.md)" --allowedTools "WebSearch" "WebFetch" > raw.json
+python news_build.py raw.json && python news_send_jandi.py jandi.txt --dry-run
+
+# 사이트 로컬 확인(정적):
+python -m http.server 8778   # → http://localhost:8778/news_site.html (시드 데이터로 렌더)
 ```
 
 ## 뉴스 브리핑 파일
 
 | 파일 | 설명 |
 |---|---|
-| `news_prompt.md` | Claude에게 주는 브리핑 작성 지침(웹검색·형식·출처 링크 규칙) |
+| `news_prompt.md` | Claude 브리핑 작성 지침(웹검색 → JSON 규격) |
+| `news_build.py` | Claude JSON 검증 → `news_data/` 아카이브 갱신 + 잔디 발송본 생성 |
 | `news_holiday.py` | 주말/공휴일/대체공휴일 판별(API 우선, 번들표 폴백) |
-| `news_send_jandi.py` | 생성 텍스트 검증·정리·잔디 발송·중복방지 |
-| `.github/workflows/flower-news.yml` | 매 평일 08:00 KST 실행(구독 토큰으로 Claude 웹검색) |
+| `news_send_jandi.py` | 잔디 발송본 검증·발송·중복방지 |
+| `news_site.html` | 뉴스 사이트 SPA(최신+아카이브, 모션, 링크) — Pages `/news/` |
+| `news_data/*.json` | 일자별 브리핑 아카이브 + `index.json`(목록) — Action이 커밋 |
+| `.github/workflows/flower-news.yml` | 매 평일 08:00 KST 생성·발송·아카이브 커밋 |
 
 > 참고: 웹훅 URL·토큰 등 비밀값은 **레포에 커밋 금지**(GitHub Secrets에만). 공개 레포 기준.
+> `raw.json`·`jandi.txt`는 실행 산출물이라 `.gitignore` 처리(아카이브는 `news_data/`에만 커밋).
