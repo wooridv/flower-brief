@@ -2,4 +2,6 @@
 __pycache__/
 *.pyc
 last_sent.txt
+news_last_sent.txt
+news.txt
 site/

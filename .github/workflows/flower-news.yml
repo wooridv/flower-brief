@@ -1,0 +1,91 @@
+name: 화훼 뉴스 아침 브리핑
+
+on:
+  schedule:
+    # 23:00 UTC = 익일 08:00 KST, 월~금(KST). GitHub 크론은 UTC 기준(수 분 지연 가능).
+    #   월 08:00 KST = 일 23:00 UTC … 금 08:00 KST = 목 23:00 UTC  → UTC 요일 0~4
+    - cron: "0 23 * * 0-4"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "공휴일 게이트/중복방지 무시하고 강제 발송"
+        type: boolean
+        default: false
+
+concurrency:
+  group: flower-news
+  cancel-in-progress: false
+
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 파이썬 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 발송일(평일·비공휴일) 판별 → steps.gate.outputs.skip
+      - name: 발송일 판별
+        id: gate
+        env:
+          # (선택) data.go.kr 특일정보 서비스키. 없으면 번들 공휴일표 사용.
+          HOLIDAY_SERVICE_KEY: ${{ secrets.HOLIDAY_SERVICE_KEY }}
+        run: python news_holiday.py --github
+
+      - name: 발송일 아님 → 종료
+        if: steps.gate.outputs.skip == 'true' && github.event.inputs.force != 'true'
+        run: echo "오늘은 발송하지 않음 (${{ steps.gate.outputs.reason }})"
+
+      - name: Node 설정
+        if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Claude Code 설치
+        if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
+        run: npm install -g @anthropic-ai/claude-code
+
+      # 중복방지 상태(news_last_sent.txt) 유지
+      - name: 상태 복원
+        if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
+        uses: actions/cache@v4
+        with:
+          path: news_last_sent.txt
+          key: news-last-sent-${{ github.run_id }}
+          restore-keys: |
+            news-last-sent-
+
+      - name: 뉴스 브리핑 생성 (Claude 구독 · 웹검색)
+        if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Seoul date '+%Y년 %m월 %d일 (%a)')"
+          PROMPT="오늘은 ${TODAY} 입니다.
+
+          $(cat news_prompt.md)"
+          echo "::group::브리핑 생성 중"
+          claude -p "$PROMPT" \
+            --allowedTools "WebSearch" "WebFetch" \
+            --output-format text > news.txt || {
+              echo "claude 실행 실패"; exit 1; }
+          echo "::endgroup::"
+          echo "----- 생성 결과 -----"
+          cat news.txt
+
+      - name: 잔디 발송
+        if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
+        env:
+          JANDI_NEWS_WEBHOOK_URL: ${{ secrets.JANDI_NEWS_WEBHOOK_URL }}
+        run: |
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            python news_send_jandi.py news.txt --force
+          else
+            python news_send_jandi.py news.txt
+          fi

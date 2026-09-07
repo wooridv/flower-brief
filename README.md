@@ -69,3 +69,61 @@ python -m http.server 8777 --directory site     # → http://localhost:8777
 - 단가는 **원/속**, 수수료 미포함, 양재동 화훼공판장 전자경매 정산가 기준.
 - 튤립·카네이션 등 일부 품목은 **계절에 따라 없는 날**이 있어, 주요 품목 표기는 그날 존재하는 품목에서 자동 선택.
 - 산지 물량은 실시간 경매 API 기준(정정·하자처리 미반영 참고용), 시세는 f001 정산가 기준.
+
+---
+
+# 🌷 화훼 뉴스 아침 브리핑 (별도 시스템)
+
+경매 정산가(숫자) 브리핑과 **별개**로, 매 평일 아침 **화훼·절화 시장 뉴스/유행/분위기**를
+**Claude(구독 요금제)** 가 웹검색·요약해 **잔디**로 7줄 이내 발송합니다.
+(예: "무슨 꽃이 유행", "시세 오름/내림 분위기", "계절·행사 수요", 관련 뉴스 + 출처 링크)
+
+## 동작 방식
+
+1. **발송일 판별**(`news_holiday.py`): 주말·공휴일·대체공휴일이면 자동 skip.
+   - `HOLIDAY_SERVICE_KEY`(data.go.kr 특일정보) 있으면 자동 최신화, 없으면 번들 공휴일표(2026~2027).
+2. **뉴스 생성**: GitHub Actions가 **Claude Code CLI를 구독 토큰으로** 실행 → 웹검색으로 최신 화훼
+   정보를 모아 `news_prompt.md` 형식대로 7줄 브리핑 텍스트 생성(API 종량제 아님, 구독 사용).
+3. **발송**(`news_send_jandi.py`): 생성 텍스트를 검증·정리 후 잔디로 발송. 같은 날 중복발송 방지.
+   - 경매 브리핑(핑크)과 구분되도록 **초록색** 커넥트 컬러 사용.
+
+- 실행 시각: 매 평일 **08:00 KST**(경매 브리핑 09:00 직전). 크론 `0 23 * * 0-4`(UTC).
+
+## 설정 (GitHub Actions)
+
+1. **Claude 구독 토큰 발급**: 로컬 터미널에서 아래 실행(Pro/Max 구독 필요), 출력된 토큰 복사.
+   ```bash
+   claude setup-token
+   ```
+2. **Settings → Secrets and variables → Actions** 에 등록:
+   - `CLAUDE_CODE_OAUTH_TOKEN` = 위에서 발급한 토큰
+   - `JANDI_NEWS_WEBHOOK_URL` = 뉴스용 잔디 Incoming Webhook URL
+   - `HOLIDAY_SERVICE_KEY` = (선택) data.go.kr 특일정보 서비스키
+3. 끝. 매 평일 08:00 KST 자동 실행. 즉시 확인/테스트는 **Actions → "화훼 뉴스 아침 브리핑" → Run workflow**
+   (`force` 체크 시 공휴일·중복 무시하고 강제 발송).
+
+## 로컬 테스트
+
+```bash
+python news_holiday.py --date 2026-09-28     # 발송일 판별(SKIP/GO)
+python news_send_jandi.py sample.txt --dry-run   # 발송 본문 정리 미리보기(발송 X)
+python news_send_jandi.py --test             # 잔디 웹훅 연결 테스트
+
+# 생성까지 로컬에서 돌려보기(로그인된 claude CLI 사용):
+TODAY="$(date '+%Y년 %m월 %d일')"
+claude -p "오늘은 ${TODAY} 입니다.
+
+$(cat news_prompt.md)" --allowedTools "WebSearch" "WebFetch" > news.txt
+python news_send_jandi.py news.txt --dry-run
+```
+
+## 뉴스 브리핑 파일
+
+| 파일 | 설명 |
+|---|---|
+| `news_prompt.md` | Claude에게 주는 브리핑 작성 지침(웹검색·형식·출처 링크 규칙) |
+| `news_holiday.py` | 주말/공휴일/대체공휴일 판별(API 우선, 번들표 폴백) |
+| `news_send_jandi.py` | 생성 텍스트 검증·정리·잔디 발송·중복방지 |
+| `.github/workflows/flower-news.yml` | 매 평일 08:00 KST 실행(구독 토큰으로 Claude 웹검색) |
+
+> 참고: 웹훅 URL·토큰 등 비밀값은 **레포에 커밋 금지**(GitHub Secrets에만). 공개 레포 기준.
