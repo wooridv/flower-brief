@@ -121,10 +121,10 @@ select#dsel{appearance:none;border:1px solid var(--line);background:var(--panel)
 .toolbar{display:flex;gap:10px;align-items:center;margin:2px 0 12px;flex-wrap:wrap}
 #q{flex:1;min-width:180px;padding:10px 13px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--tx);font:inherit}
 #q:focus{outline:none;border-color:var(--accent)}
-.tblscroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+.tblscroll{overflow:auto;max-height:65vh;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:14px}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel)}
 th,td{padding:9px 12px;text-align:left;white-space:nowrap}
-thead th{position:sticky;top:0;background:var(--panel2);color:var(--mut);font-weight:700;font-size:12px;border-bottom:1px solid var(--line)}
+thead th{position:sticky;top:0;z-index:2;background:var(--panel2);color:var(--mut);font-weight:700;font-size:12px;box-shadow:inset 0 -1px 0 var(--line)}
 tbody tr{border-bottom:1px solid var(--line2)}
 tbody tr:last-child{border-bottom:none}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
@@ -267,7 +267,7 @@ function render(p){
 
   <div class="sect-h"><h2>전체 세부</h2><span class="m">품종·등급별 · 검색 가능</span></div>
   <div class="toolbar"><input id="q" type="search" placeholder="🔍 품목·품종·등급 검색 (예: 백합, 옐로우윈, 특2)"><span class="m" id="qn"></span></div>
-  <div class="tblscroll" style="max-height:520px;overflow-y:auto">
+  <div class="tblscroll">
     <table id="dtable"><thead><tr><th>품목</th><th>품종</th><th>등급</th><th class="num">평균</th><th class="num">최고</th><th class="num">최저</th><th class="num">물량</th><th class="num">거래액</th></tr></thead>
     <tbody>${p.detail.map(r=>`<tr><td class="nm">${esc(r.pum)}</td><td>${esc(r.good)}</td><td>${esc(r.lv)}</td><td class="num">${INT(r.avg)}</td><td class="num">${INT(r.max)}</td><td class="num">${INT(r.min)}</td><td class="num">${INT(r.qty)}</td><td class="num">${WON(r.amt)}</td></tr>`).join('')}</tbody></table>
   </div>
