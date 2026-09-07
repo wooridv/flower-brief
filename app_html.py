@@ -27,6 +27,7 @@ SPA_HTML = r"""<!doctype html>
 }}
 *{box-sizing:border-box}
 html,body{margin:0}
+html,body{overflow-x:clip}  /* 어떤 요소도 페이지 가로 스크롤을 만들지 않도록 */
 body{background:var(--bg);color:var(--tx);
   font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
   font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:40px}
@@ -51,6 +52,14 @@ select#dsel{appearance:none;border:1px solid var(--line);background:var(--panel)
   background-repeat:no-repeat;background-position:right 10px center}
 .reallink{font-size:13px;color:var(--mut);border:1px solid var(--line);padding:7px 11px;border-radius:10px;white-space:nowrap;transition:.15s}
 .reallink:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:560px){
+  .top .wrap{gap:8px}
+  .brand{font-size:15px}
+  .brand .dot{width:8px;height:8px;box-shadow:0 0 0 3px var(--accentSoft)}
+  .reallink{display:none}            /* 모바일: 상단 링크 숨김(하단 푸터에 동일 링크 있음) */
+  select#dsel{padding:7px 26px 7px 10px;font-size:13px}
+  .iconbtn{width:32px;height:32px}
+}
 
 /* hero */
 .hero{margin:22px 0 8px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 26px}
