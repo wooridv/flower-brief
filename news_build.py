@@ -97,11 +97,13 @@ def validate(obj):
     return obj
 
 
-def build_jandi(obj, date, weekday):
+def build_jandi(obj, date, weekday, site_url=None):
     d = dt.datetime.strptime(date, "%Y-%m-%d").date()
     lines = ["🌷 화훼시장 아침 브리핑 %d/%d(%s)" % (d.month, d.day, weekday)]
+    # 링크 줄을 넣을 경우 마지막 1줄을 비워둠(전체 7줄 유지)
+    body_budget = MAX_JANDI_LINES - (1 if site_url else 0)
     for it in obj["items"]:
-        if len(lines) >= MAX_JANDI_LINES:
+        if len(lines) >= body_budget:
             break
         icon = (it.get("icon") or "•").strip()
         head = strip_tags(it.get("head"))
@@ -109,6 +111,8 @@ def build_jandi(obj, date, weekday):
         if it.get("url"):
             line += " (%s)" % short_url(it["url"])
         lines.append(line)
+    if site_url:
+        lines.append("🔗 지난 브리핑 더보기: %s" % site_url)
     return "\n".join(lines[:MAX_JANDI_LINES])
 
 
@@ -152,7 +156,7 @@ def main(argv=None):
                    "latest": dates[0]["date"], "dates": dates},
                   f, ensure_ascii=False, indent=1)
 
-    jandi = build_jandi(obj, date, weekday)
+    jandi = build_jandi(obj, date, weekday, os.environ.get("NEWS_SITE_URL", "").strip() or None)
     with open(args.jandi_out, "w", encoding="utf-8") as f:
         f.write(jandi)
 

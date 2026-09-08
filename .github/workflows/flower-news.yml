@@ -79,6 +79,8 @@ jobs:
 
       - name: 아카이브 + 잔디 발송본 생성
         if: steps.gate.outputs.skip != 'true' || github.event.inputs.force == 'true'
+        env:
+          NEWS_SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/news/
         run: python news_build.py raw.json --data-dir news_data --jandi-out jandi.txt
 
       - name: 아카이브 커밋(push)
