@@ -107,12 +107,10 @@ def build_jandi(obj, date, weekday, site_url=None):
             break
         icon = (it.get("icon") or "•").strip()
         head = strip_tags(it.get("head"))
-        line = "%s %s" % (icon, head)
-        if it.get("url"):
-            line += " (%s)" % short_url(it["url"])
-        lines.append(line)
+        # 개별 기사 링크는 넣지 않음 — 출처/링크는 하단 사이트 링크(/news/)로 통합
+        lines.append("%s %s" % (icon, head))
     if site_url:
-        lines.append("🔗 지난 브리핑 더보기: %s" % site_url)
+        lines.append("🔗 자세히·출처 보기: %s" % site_url)
     return "\n".join(lines[:MAX_JANDI_LINES])
 
 
