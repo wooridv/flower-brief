@@ -1,11 +1,11 @@
 {
  "date": "2026-09-03",
  "weekday": "목",
- "lead": "화훼산업 디지털·기술 접목 가속",
+ "lead": "국산 품종 경쟁력·수급조절에 주목",
  "items": [
-  {"icon": "📱", "head": "유튜브 꽃 축제 영상 등 <span class='hot'>디지털 홍보</span> 확대", "desc": "온라인 콘텐츠로 화훼 소비 접점이 다변화되는 흐름.", "url": "https://www.koreaiin.com/news/900152", "src": "한국IT산업뉴스 · 디지털 홍보"},
-  {"icon": "🚜", "head": "농업기술 박람회, 화훼·원예 <span class='hot'>스마트팜·신기술</span> 조명", "desc": "재배·수확 후 관리 기술이 업계 경쟁력의 핵심으로.", "url": "https://www.koreaiin.com/news/902414", "src": "한국IT산업뉴스 · 농업기술 박람회"},
-  {"icon": "🧺", "head": "젊은 세대 '일상의 작은 행복' 꽃 소비…구독·소량 정착", "desc": "2.5만원 미만 구독 서비스 확산으로 일상 소비가 자리잡는 중.", "url": "https://www.koreaiin.com/news/911306", "src": "한국IT산업뉴스 · 여름 꽃 트렌드"}
+  {"icon": "🌼", "head": "\"볼륨감·긴 <span class='hot'>꽃수명</span>\" 품종에 집중…국산 경쟁력 강화", "desc": "소비자가 원하는 형태·수명을 중심으로 품종 선택이 이동.", "url": "http://www.hortitimes.com/news/articleView.html?idxno=31057", "src": "월간원예(원예산업신문)"},
+  {"icon": "✂️", "head": "절화 자조금 <span class='hot'>수급조절</span>…장미 14.5만본 산지폐기", "desc": "여름 비수기 가격 방어를 위해 주산지 폐기로 물량을 조절.", "url": "http://www.amnews.co.kr/news/articleView.html?idxno=73740", "src": "농축유통신문"},
+  {"icon": "📊", "head": "카네이션 경매가 전년比 <span class='up'>22%↑</span>(성수 집중)", "desc": "수요가 5월에 몰리는 대표 시즌 품목, 가격 변동이 큼.", "url": "https://biz.heraldcorp.com/article/10733086", "src": "헤럴드경제"}
  ],
- "keywords": ["디지털 홍보", "스마트팜", "일상 소비"]
+ "keywords": ["국산 품종", "자조금 수급조절", "카네이션 시세"]
 }
