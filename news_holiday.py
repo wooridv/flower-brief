@@ -29,6 +29,19 @@ except Exception:  # pragma: no cover
 
 WEEKDAY_KO = ["월", "화", "수", "목", "금", "토", "일"]
 
+
+def load_dotenv(path=".env"):
+    """로컬 자동 실행 시에도 공휴일 API 키를 .env 에서만 읽는다."""
+    if not os.path.exists(path):
+        return
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
 # 번들 공휴일표(대체공휴일 포함). YYYY-MM-DD → 명칭.
 # ※ 음력/대체공휴일은 매년 바뀌므로, HOLIDAY_SERVICE_KEY 사용을 권장.
 #   미사용 시 연 1회 갱신하거나 새해 전 연도 추가.
@@ -116,6 +129,7 @@ def should_skip(today=None):
 
 
 def main(argv=None):
+    load_dotenv()
     ap = argparse.ArgumentParser(description="브리핑 발송일 판별")
     ap.add_argument("--github", action="store_true",
                     help="$GITHUB_OUTPUT 에 skip/reason 기록")

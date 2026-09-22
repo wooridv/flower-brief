@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Claude(구독) 웹검색 출력(JSON)을 받아 → 사이트 아카이브 + 잔디 발송본 생성.
+"""Codex(ChatGPT 구독) 웹검색 출력(JSON)을 받아 → 사이트 아카이브 + 잔디 발송본 생성.
 
-입력: Claude 가 뽑은 원본(JSON, 코드펜스/잡텍스트 섞여 있어도 됨) — 파일 또는 stdin.
+입력: Codex 가 뽑은 원본(JSON, 코드펜스/잡텍스트 섞여 있어도 됨) — 파일 또는 stdin.
 동작:
   1) 첫 JSON 객체를 견고하게 추출·검증.
   2) 오늘(KST) 날짜/요일 부여 → news_data/<date>.json 저장.
@@ -115,7 +115,7 @@ def build_jandi(obj, date, weekday, site_url=None):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Claude JSON → 사이트 아카이브 + 잔디 발송본")
+    ap = argparse.ArgumentParser(description="Codex JSON → 사이트 아카이브 + 잔디 발송본")
     ap.add_argument("infile", nargs="?", help="원본 JSON 파일(없으면 stdin)")
     ap.add_argument("--data-dir", default="news_data")
     ap.add_argument("--jandi-out", default="jandi.txt")
