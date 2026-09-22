@@ -11,7 +11,7 @@
 
 사용:
   python news_build.py raw.json                 # 파일 입력
-  claude ... | python news_build.py             # stdin 입력
+  codex exec ... | python news_build.py         # stdin 입력
   python news_build.py raw.json --jandi-out jandi.txt --data-dir news_data
 """
 
