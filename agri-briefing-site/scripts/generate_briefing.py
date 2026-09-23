@@ -59,10 +59,10 @@ def generate(client: OpenAI, today: str, history: list[dict]) -> dict:
 def main() -> None:
     now = datetime.now(KST)
     if is_korean_nonworking_day(now.date()): print("Non-working day in Korea: skip"); return
-    if not os.getenv("OPENAI_API_KEY"): raise RuntimeError("OPENAI_API_KEY is required")
     DATA.mkdir(exist_ok=True)
     today = now.date().isoformat(); destination = DATA / f"{today}.json"
     if destination.exists(): print(f"{destination} already exists; preserving it"); return
+    if not os.getenv("OPENAI_API_KEY"): raise RuntimeError("OPENAI_API_KEY is required")
     payload = generate(OpenAI(), today, recent_stories())
     destination.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     (DATA / "latest.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
