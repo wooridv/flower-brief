@@ -28,7 +28,7 @@ def is_duplicate(candidate: dict, previous: list[dict], threshold: float = .82) 
 
 def validate_briefing(payload: dict, expected_date: str) -> list[str]:
     errors: list[str] = []
-    for field in ("summary", "signal", "mostImportantChange", "attentionPoints", "actions", "stories"):
+    for field in ("summary", "signal", "mostImportantChange", "attentionPoints", "flowerWatch", "actions", "stories"):
         if not payload.get(field): errors.append(f"missing top-level field: {field}")
     if payload.get("date") != expected_date: errors.append("date does not match run date")
     stories = payload.get("stories", [])
@@ -37,6 +37,8 @@ def validate_briefing(payload: dict, expected_date: str) -> list[str]:
         missing = REQUIRED_STORY_FIELDS - set(story)
         if missing: errors.append(f"story {i + 1} missing: {', '.join(sorted(missing))}")
         if not str(story.get("sourceUrl", "")).startswith(("https://", "http://")): errors.append(f"story {i + 1} has invalid sourceUrl")
+    for i, item in enumerate(payload.get("flowerWatch", [])):
+        if not str(item.get("sourceUrl", "")).startswith(("https://", "http://")): errors.append(f"flowerWatch {i + 1} has invalid sourceUrl")
     return errors
 
 def is_korean_nonworking_day(day: date) -> bool:
@@ -46,5 +48,10 @@ def is_korean_nonworking_day(day: date) -> bool:
 def jandi_payload(briefing: dict, site_url: str) -> dict:
     items = "\n".join(f"{i}. {s.get('shortTitle') or s['title']}" for i, s in enumerate(briefing["stories"][:3], 1))
     action = briefing.get("actions", [{}])[0]
-    body = (f"🌱 {briefing['date']} 농업·화훼·원예 브리핑\n\n오늘의 시그널\n{briefing['signal']}\n\n{items}\n\n💡 오늘의 실행 포인트\n{action.get('title', '')}\n\n👉 전체 브리핑 보기\n{site_url.rstrip('/')}/briefing/{briefing['date']}/")
+    flower_watch = briefing.get("flowerWatch", [])
+    flower_line = ""
+    if flower_watch:
+        names = ", ".join(filter(None, [f"{x.get('flower', '')} {x.get('variety', '')}".strip() for x in flower_watch[:3]]))
+        flower_line = f"\n\n🌷 절화·품종 포커스\n{names}"
+    body = (f"🌱 {briefing['date']} 농업·화훼·원예 브리핑\n\n오늘의 시그널\n{briefing['signal']}\n\n{items}{flower_line}\n\n💡 오늘의 실행 포인트\n{action.get('title', '')}\n\n👉 전체 브리핑 보기\n{site_url.rstrip('/')}/briefing/{briefing['date']}/")
     return {"body": body, "connectColor": "#347B55", "connectInfo": [{"title": "오늘의 실행 포인트", "description": action.get("detail", "")}]} 

@@ -1,6 +1,6 @@
 # 농업·화훼·원예 Daily Brief
 
-GitHub Pages와 GitHub Actions로 운영하는 정적 일일 산업 뉴스 브리핑입니다. 평일 한국시간 오전 9시에 최신 웹 검색 결과를 바탕으로 최대 5개의 검증된 뉴스를 발행하고, 배포가 성공한 뒤에만 JANDI에 짧은 링크 알림을 보냅니다.
+GitHub Pages와 GitHub Actions로 운영하는 정적 일일 산업 뉴스 브리핑입니다. 평일 한국시간 오전 9시에 최신 웹 검색 결과를 바탕으로 최대 5개의 검증된 뉴스와 절화·품종 동향을 발행하고, 배포가 성공한 뒤에만 화훼업계뉴스 전용 JANDI 웹훅으로 알림을 보냅니다.
 
 ## 구조
 
@@ -35,7 +35,7 @@ python -m pytest -q
 
 1. 이 폴더의 내용을 새 GitHub 저장소 최상위에 push합니다.
 2. **Settings → Pages → Build and deployment → Source**를 `GitHub Actions`로 선택합니다.
-3. **Settings → Secrets and variables → Actions → Secrets**에 `OPENAI_API_KEY`, `JANDI_WEBHOOK_URL`을 등록합니다.
+3. **Settings → Secrets and variables → Actions → Secrets**에 `OPENAI_API_KEY`, `JANDI_NEWS_WEBHOOK_URL`을 등록합니다. 공판장용 `JANDI_AUCTION_WEBHOOK_URL`과 섞지 않습니다.
 4. 같은 화면의 **Variables**에 `SITE_URL`을 등록합니다. 예: `https://USERNAME.github.io/REPOSITORY`.
 5. Actions 탭에서 **Daily briefing**을 `Run workflow`로 한 번 실행합니다.
 6. 성공 후 `SITE_URL/archive/`와 `SITE_URL/briefing/YYYY-MM-DD/`를 열어 확인합니다.
@@ -45,7 +45,8 @@ python -m pytest -q
 | 이름 | 위치 | 용도 |
 | --- | --- | --- |
 | `OPENAI_API_KEY` | GitHub Secret | OpenAI 검색 및 분석 |
-| `JANDI_WEBHOOK_URL` | GitHub Secret | Incoming Webhook 전송 |
+| `JANDI_NEWS_WEBHOOK_URL` | GitHub Secret | 화훼업계뉴스 Incoming Webhook |
+| `JANDI_AUCTION_WEBHOOK_URL` | GitHub Secret | aT 절화 경매 Incoming Webhook |
 | `SITE_URL` | GitHub Variable | 배포된 날짜별 링크 생성 |
 | `OPENAI_MODEL` | workflow env 또는 Variable | 선택: 사용할 모델 변경 |
 
@@ -60,7 +61,7 @@ python -m pytest -q
 배포 후 GitHub Actions의 수동 실행이 가장 안전한 테스트입니다. 로컬에서 실제 전송을 시험하려면 먼저 해당 날짜 JSON을 만든 다음 아래처럼 환경변수를 일시 설정합니다. 웹훅 주소는 출력하거나 커밋하지 마세요.
 
 ```powershell
-$env:JANDI_WEBHOOK_URL = "https://..."
+$env:JANDI_NEWS_WEBHOOK_URL = "https://..."
 $env:SITE_URL = "https://USERNAME.github.io/REPOSITORY"
 python scripts/notify_jandi.py
 ```

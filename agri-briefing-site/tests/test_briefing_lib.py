@@ -6,7 +6,8 @@ def story(**changes):
     data.update(changes); return data
 
 def briefing():
-    return {"date":"2026-09-23", "summary":"요약", "signal":"신호", "mostImportantChange":"변화", "attentionPoints":["포인트"], "actions":[{"title":"실행", "detail":"상세"}], "stories":[story()]}
+    flower_watch={"flower":"장미", "variety":"테스트 품종", "signal":"관심 증가", "evidence":"공식 출처 확인", "actionPoint":"소량 시험", "sourceName":"공식기관", "sourceUrl":"https://example.com/flower"}
+    return {"date":"2026-09-23", "summary":"요약", "signal":"신호", "mostImportantChange":"변화", "attentionPoints":["포인트"], "flowerWatch":[flower_watch], "actions":[{"title":"실행", "detail":"상세"}], "stories":[story()]}
 
 def test_url_and_title_duplicates_are_excluded():
     history=[story(sourceUrl="https://example.com/news?utm_source=x")]
@@ -28,3 +29,4 @@ def test_jandi_payload_is_short_and_uses_deployed_date_route():
     payload=jandi_payload(briefing(), "https://org.github.io/site/")
     assert "/briefing/2026-09-23/" in payload["body"]
     assert "JANDI_WEBHOOK_URL" not in payload["body"]
+    assert "절화·품종 포커스" in payload["body"]

@@ -59,25 +59,21 @@ try {
     $prompt | & $Codex exec --search --sandbox read-only --ephemeral -o $raw - 2>&1 | ForEach-Object { Write-Log $_ }
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path $raw)) { throw "Codex generation failed (exit=$LASTEXITCODE)." }
 
-    $env:NEWS_SITE_URL = 'https://wooridv.github.io/flower-brief/news/'
-    & python news_build.py $raw --data-dir news_data --jandi-out jandi.txt 2>&1 | ForEach-Object { Write-Log $_ }
-    if ($LASTEXITCODE -ne 0) { throw "News build failed (exit=$LASTEXITCODE)." }
+    & python agri-briefing-site/scripts/import_briefing.py $raw 2>&1 | ForEach-Object { Write-Log $_ }
+    if ($LASTEXITCODE -ne 0) { throw "Industry briefing import failed (exit=$LASTEXITCODE)." }
+    & python agri-briefing-site/scripts/build_site.py 2>&1 | ForEach-Object { Write-Log $_ }
+    if ($LASTEXITCODE -ne 0) { throw "Static route build failed (exit=$LASTEXITCODE)." }
     if (-not $NoPush) {
-        & git add news_data
+        & git add agri-briefing-site/data agri-briefing-site/archive agri-briefing-site/briefing agri-briefing-site/industry
         & git diff --cached --quiet
         if ($LASTEXITCODE -ne 0) {
-            & git commit -m ("News archive update: {0}" -f $Today) 2>&1 | ForEach-Object { Write-Log $_ }
+            & git commit -m ("Horticulture industry briefing: {0}" -f $Today) 2>&1 | ForEach-Object { Write-Log $_ }
             if ($LASTEXITCODE -ne 0) { throw 'News archive commit failed.' }
             & git push origin main 2>&1 | ForEach-Object { Write-Log $_ }
-            if ($LASTEXITCODE -ne 0) { throw 'News archive push failed; Jandi sending cancelled because the web link is stale.' }
+            if ($LASTEXITCODE -ne 0) { throw 'Industry briefing push failed; deployment will not run.' }
         } else { Write-Log 'No archive change.' }
     }
-
-    $sendArgs = @('news_send_jandi.py', 'jandi.txt')
-    if ($Force) { $sendArgs += '--force' }
-    & python @sendArgs 2>&1 | ForEach-Object { Write-Log $_ }
-    if ($LASTEXITCODE -ne 0) { throw "Jandi send failed (exit=$LASTEXITCODE)." }
-    Write-Log 'Flower news run completed.'
+    Write-Log 'Industry briefing generation completed. JANDI delivery waits for the 09:00 Pages deployment.'
     exit 0
 }
 catch {

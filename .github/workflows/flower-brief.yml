@@ -1,10 +1,7 @@
 name: 화훼 아침 브리핑
 
 on:
-  schedule:
-    # 00:00 UTC = 09:00 KST, 월~금 (GitHub 크론은 UTC 기준, 수 분 지연 가능)
-    - cron: "0 0 * * 1-5"
-  workflow_dispatch: {}   # 수동 실행 버튼
+  workflow_dispatch: {}   # 비상 수동 실행 전용; 정기 실행은 통합 워크플로가 담당
 
 # GitHub Pages 배포 권한
 permissions:
@@ -45,7 +42,7 @@ jobs:
       - name: 브리핑 실행
         env:
           FLOWER_SERVICE_KEY: ${{ secrets.FLOWER_SERVICE_KEY }}
-          JANDI_WEBHOOK_URL: ${{ secrets.JANDI_WEBHOOK_URL }}
+          JANDI_AUCTION_WEBHOOK_URL: ${{ secrets.JANDI_AUCTION_WEBHOOK_URL }}
           # 대시보드 공개 URL(프로젝트 페이지 기본 형식) → 잔디 링크에 사용
           REPORT_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
           BACKFILL_DAYS: "20"   # 대시보드에서 과거 몇 경매일치를 볼지
@@ -57,13 +54,15 @@ jobs:
           mkdir -p site
           [ -f site/index.html ] || echo '<!doctype html><meta charset="utf-8"><p>아직 브리핑이 없습니다.</p>' > site/index.html
 
-      # 화훼 뉴스 브리핑 페이지(별도 시스템)를 같은 Pages 배포에 함께 실음 → /news/
-      # news_data 는 뉴스 워크플로가 레포에 커밋한 아카이브(JSON). news_site.html 은 SPA.
-      - name: 뉴스 페이지 번들
+      - name: 화훼업계뉴스 페이지 보존
         run: |
-          mkdir -p site/news/data
-          [ -f news_site.html ] && cp news_site.html site/news/index.html || true
-          cp news_data/*.json site/news/data/ 2>/dev/null || true
+          python agri-briefing-site/scripts/build_site.py
+          mkdir -p site/assets site/data site/archive site/briefing site/industry
+          cp -R agri-briefing-site/assets/. site/assets/
+          cp -R agri-briefing-site/data/. site/data/
+          cp -R agri-briefing-site/archive/. site/archive/
+          cp -R agri-briefing-site/briefing/. site/briefing/
+          cp -R agri-briefing-site/industry/. site/industry/
 
       - name: Pages 아티팩트 업로드
         uses: actions/upload-pages-artifact@v3

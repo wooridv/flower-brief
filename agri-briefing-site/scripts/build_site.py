@@ -26,6 +26,8 @@ def main() -> None:
     (DATA / "archive.json").write_text(json.dumps(archive_items, ensure_ascii=False, indent=2), encoding="utf-8")
     archive = ROOT / "archive"; archive.mkdir(exist_ok=True)
     (archive / "index.html").write_text(html_for("../data/latest.json", "../", True), encoding="utf-8")
+    industry = ROOT / "industry"; industry.mkdir(exist_ok=True)
+    (industry / "index.html").write_text(html_for("../data/latest.json", "../"), encoding="utf-8")
     briefings = ROOT / "briefing"; briefings.mkdir(exist_ok=True)
     for item in archive_items:
         output = briefings / item["date"]; output.mkdir(parents=True, exist_ok=True)

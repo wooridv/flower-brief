@@ -32,7 +32,8 @@ aT 화훼공판장(양재동)의 **절화 경매 정산가**를 매 평일 아�
 1. 이 폴더를 **GitHub public 레포**로 push (Pages 무료 사용 · 꽃 경매가는 공개 데이터).
 2. **Settings → Secrets and variables → Actions** 에 등록:
    - `FLOWER_SERVICE_KEY` = 발급받은 flower.at.or.kr 서비스키
-   - `JANDI_WEBHOOK_URL` = 잔디 Incoming Webhook URL
+   - `JANDI_AUCTION_WEBHOOK_URL` = aT 절화 경매 전용 Incoming Webhook URL
+   - `JANDI_NEWS_WEBHOOK_URL` = 화훼업계뉴스 전용 Incoming Webhook URL
 3. **Settings → Pages → Source = "GitHub Actions"**.
 4. 끝. 매 평일 09:00 KST 자동 실행. 즉시 확인은 **Actions 탭 → Run workflow**.
 

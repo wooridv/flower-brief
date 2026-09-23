@@ -7,7 +7,7 @@
 - 중복방지: 같은 날(KST) 이미 보냈으면 skip(--force 로 무시).
 
 환경변수:
-  JANDI_NEWS_WEBHOOK_URL  뉴스 채널 잔디 웹훅(우선). 없으면 JANDI_WEBHOOK_URL.
+  JANDI_NEWS_WEBHOOK_URL  화훼업계뉴스 전용 잔디 웹훅.
 
 사용:
   python news_send_jandi.py news.txt
@@ -47,8 +47,7 @@ def load_dotenv(path=".env"):
 
 
 def webhook_url():
-    return (os.environ.get("JANDI_NEWS_WEBHOOK_URL", "").strip()
-            or os.environ.get("JANDI_WEBHOOK_URL", "").strip())
+    return os.environ.get("JANDI_NEWS_WEBHOOK_URL", "").strip()
 
 
 def clean_body(raw):
@@ -116,7 +115,7 @@ def main(argv=None):
 
     if args.test:
         if not url:
-            print("JANDI_NEWS_WEBHOOK_URL(또는 JANDI_WEBHOOK_URL) 미설정", file=sys.stderr)
+            print("JANDI_NEWS_WEBHOOK_URL 미설정", file=sys.stderr)
             return 2
         s, r = post_jandi(url, "✅ 화훼 뉴스 브리핑 웹훅 연결 테스트\n정상 수신되면 설정 완료입니다.")
         print("잔디 응답:", s, r)
@@ -148,7 +147,7 @@ def main(argv=None):
             return 0
 
     if not url:
-        print("JANDI_NEWS_WEBHOOK_URL(또는 JANDI_WEBHOOK_URL) 미설정 → 발송 불가", file=sys.stderr)
+        print("JANDI_NEWS_WEBHOOK_URL 미설정 → 발송 불가", file=sys.stderr)
         return 2
 
     s, r = post_jandi(url, body)

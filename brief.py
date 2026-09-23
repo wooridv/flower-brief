@@ -14,7 +14,7 @@ aT 화훼공판장 절화(cut flower) 경매가 아침 브리핑 — 데이터 �
 
 환경변수:
   FLOWER_SERVICE_KEY   flower.at.or.kr 서비스키 (필수)
-  JANDI_WEBHOOK_URL    잔디 Incoming Webhook URL (발송 시 필수)
+  JANDI_AUCTION_WEBHOOK_URL  aT 절화 경매 전용 잔디 Incoming Webhook URL
   REPORT_BASE_URL      대시보드 공개 URL (옵션, 잔디 링크에 사용)
   BACKFILL_DAYS        과거 몇 경매일치를 만들지 (기본 20)
 
@@ -435,10 +435,10 @@ def main(argv=None):
     ap.add_argument("--days", type=int, default=int(os.environ.get("BACKFILL_DAYS", "20")))
     args = ap.parse_args(argv)
 
-    webhook = os.environ.get("JANDI_WEBHOOK_URL", "").strip()
+    webhook = os.environ.get("JANDI_AUCTION_WEBHOOK_URL", "").strip()
     if args.test:
         if not webhook:
-            print("JANDI_WEBHOOK_URL 미설정", file=sys.stderr)
+            print("JANDI_AUCTION_WEBHOOK_URL 미설정", file=sys.stderr)
             return 2
         s, r = post_jandi(webhook, "✅ 화훼 브리핑 웹훅 연결 테스트\n정상 수신되면 설정 완료입니다.")
         print("잔디 응답:", s, r)
@@ -490,7 +490,7 @@ def main(argv=None):
             print("\n이미 브리핑함(last=%s) → skip" % last)
             return 0
     if not webhook:
-        print("JANDI_WEBHOOK_URL 미설정 → 발송 불가", file=sys.stderr)
+        print("JANDI_AUCTION_WEBHOOK_URL 미설정 → 발송 불가", file=sys.stderr)
         return 2
     s, r = post_jandi(webhook, body)
     print("\n잔디 발송:", s, r)

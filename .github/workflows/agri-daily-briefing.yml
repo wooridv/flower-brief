@@ -1,9 +1,15 @@
-name: Agriculture Daily Briefing
+name: Daily Auction and Industry Briefings
 
 on:
   schedule:
     - cron: '0 0 * * 1-5' # 09:00 Asia/Seoul
   workflow_dispatch:
+    inputs:
+      send_notifications:
+        description: '수동 실행에서도 JANDI 알림 전송'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -11,7 +17,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: agri-daily-briefing
+  group: pages
   cancel-in-progress: false
 
 jobs:
@@ -20,39 +26,72 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    defaults:
-      run:
-        working-directory: agri-briefing-site
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -r requirements.txt
-      - name: Generate briefing
+      - run: pip install -r agri-briefing-site/requirements.txt
+      - name: Restore auction delivery state
+        uses: actions/cache@v4
+        with:
+          path: last_sent.txt
+          key: auction-last-sent-${{ github.run_id }}
+          restore-keys: auction-last-sent-
+      - name: Build cut-flower auction dashboard
+        id: auction
+        continue-on-error: true
+        env:
+          FLOWER_SERVICE_KEY: ${{ secrets.FLOWER_SERVICE_KEY }}
+          REPORT_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+          BACKFILL_DAYS: '20'
+        run: python brief.py --out site --dry-run
+      - name: Generate horticulture industry news
+        id: news
+        continue-on-error: true
+        working-directory: agri-briefing-site
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5.6-luna' }}
         run: python scripts/generate_briefing.py
-      - name: Build static routes
+      - name: Build industry-news static routes
+        working-directory: agri-briefing-site
         run: python scripts/build_site.py
-      - name: Commit generated briefing data
-        working-directory: .
+      - name: Commit generated industry-news data
         run: |
           git config user.name "briefing-bot"
           git config user.email "briefing-bot@users.noreply.github.com"
-          git add agri-briefing-site/data agri-briefing-site/archive agri-briefing-site/briefing
-          git diff --cached --quiet || git commit -m "Daily agriculture briefing $(date +%F)"
+          git add agri-briefing-site/data agri-briefing-site/archive agri-briefing-site/briefing agri-briefing-site/industry
+          git diff --cached --quiet || git commit -m "Daily horticulture industry briefing $(date +%F)"
           git push
+      - name: Assemble one Pages site
+        run: |
+          mkdir -p site site/assets site/data site/archive site/briefing site/industry
+          [ -f site/index.html ] || echo '<!doctype html><meta charset="utf-8"><p>절화 경매 데이터를 준비 중입니다.</p>' > site/index.html
+          cp -R agri-briefing-site/assets/. site/assets/
+          cp -R agri-briefing-site/data/. site/data/
+          cp -R agri-briefing-site/archive/. site/archive/
+          cp -R agri-briefing-site/briefing/. site/briefing/
+          cp -R agri-briefing-site/industry/. site/industry/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: agri-briefing-site
-      - name: Deploy website
+          path: site
+      - name: Deploy combined website
         id: deployment
         uses: actions/deploy-pages@v4
-      - name: Notify JANDI after deployment
+      - name: Notify cut-flower auction JANDI
+        if: steps.auction.outcome == 'success' && (github.event_name == 'schedule' || inputs.send_notifications)
         env:
-          JANDI_WEBHOOK_URL: ${{ secrets.JANDI_WEBHOOK_URL }}
+          FLOWER_SERVICE_KEY: ${{ secrets.FLOWER_SERVICE_KEY }}
+          JANDI_AUCTION_WEBHOOK_URL: ${{ secrets.JANDI_AUCTION_WEBHOOK_URL }}
+          REPORT_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+          BACKFILL_DAYS: '20'
+        run: python brief.py --out site
+      - name: Notify horticulture-industry-news JANDI
+        if: steps.news.outcome == 'success' && (github.event_name == 'schedule' || inputs.send_notifications)
+        working-directory: agri-briefing-site
+        env:
+          JANDI_NEWS_WEBHOOK_URL: ${{ secrets.JANDI_NEWS_WEBHOOK_URL }}
           SITE_URL: ${{ steps.deployment.outputs.page_url }}
         run: python scripts/notify_jandi.py

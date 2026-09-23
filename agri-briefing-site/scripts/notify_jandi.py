@@ -19,9 +19,9 @@ def load_local_env() -> None:
 
 def main() -> None:
     load_local_env()
-    webhook, site_url = os.getenv("JANDI_WEBHOOK_URL"), os.getenv("SITE_URL")
+    webhook, site_url = os.getenv("JANDI_NEWS_WEBHOOK_URL"), os.getenv("SITE_URL")
     if not webhook or not site_url:
-        logging.warning("JANDI_WEBHOOK_URL or SITE_URL is absent; notification skipped")
+        logging.warning("JANDI_NEWS_WEBHOOK_URL or SITE_URL is absent; notification skipped")
         return
     date = datetime.now(ZoneInfo("Asia/Seoul")).date().isoformat()
     requested_file = os.getenv("BRIEFING_FILE", "")
