@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>우리화훼종묘 데일리 브리핑</title>
+  <meta name="theme-color" content="#f7f8f6" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <header class="topbar">
+    <a class="brand" href="./"><span class="brand-mark">A</span><div><strong>농업·화훼·원예 Daily Brief</strong><small>AGRI · FLORICULTURE INTELLIGENCE</small></div></a>
+    <button id="archiveBtn" class="ghost-btn">지난 브리핑</button>
+  </header>
+
+  <main>
+    <section class="hero reveal">
+      <div class="hero-kicker">DAILY BRIEFING</div>
+      <h1 id="briefingTitle">농업·화훼·원예<br><span>Daily Brief</span></h1>
+      <p id="briefingSummary" class="hero-summary"></p>
+      <div class="hero-meta"><span id="briefingDate"></span><span>5 TOP STORIES</span><span>KST</span></div>
+      <div class="scroll-cue">SCROLL <span>↓</span></div>
+    </section>
+
+    <section class="pulse reveal">
+      <div class="pulse-label">TODAY'S SIGNAL</div>
+      <div id="signal" class="pulse-text"></div>
+    </section>
+
+    <section id="stories" class="stories"></section>
+
+    <section class="action-board reveal">
+      <div class="eyebrow">FOR BUSINESS</div>
+      <h2>오늘의 실행 포인트</h2>
+      <div id="actionPoints" class="action-grid"></div>
+    </section>
+  </main>
+
+  <aside id="archive" class="archive-drawer" aria-hidden="true">
+    <div class="archive-head"><div><small>ARCHIVE</small><h3>지난 브리핑</h3></div><button id="closeArchive">×</button></div>
+    <div id="archiveList" class="archive-list"></div>
+  </aside>
+  <div id="overlay" class="overlay"></div>
+
+  <footer><span>농업·화훼·원예 데일리 인텔리전스</span><span id="footerDate"></span></footer>
+  <script src="assets/app.js"></script>
+</body>
+</html>

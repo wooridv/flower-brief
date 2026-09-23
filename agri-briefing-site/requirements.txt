@@ -1,0 +1,3 @@
+openai>=2.0.0
+holidays>=0.80
+pytest>=8.0

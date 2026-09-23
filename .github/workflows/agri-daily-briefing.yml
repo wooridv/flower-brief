@@ -1,0 +1,58 @@
+name: Agriculture Daily Briefing
+
+on:
+  schedule:
+    - cron: '0 0 * * 1-5' # 09:00 Asia/Seoul
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: agri-daily-briefing
+  cancel-in-progress: false
+
+jobs:
+  briefing:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: agri-briefing-site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Generate briefing
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5.6-luna' }}
+        run: python scripts/generate_briefing.py
+      - name: Build static routes
+        run: python scripts/build_site.py
+      - name: Commit generated briefing data
+        working-directory: .
+        run: |
+          git config user.name "briefing-bot"
+          git config user.email "briefing-bot@users.noreply.github.com"
+          git add agri-briefing-site/data agri-briefing-site/archive agri-briefing-site/briefing
+          git diff --cached --quiet || git commit -m "Daily agriculture briefing $(date +%F)"
+          git push
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: agri-briefing-site
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Notify JANDI after deployment
+        env:
+          JANDI_WEBHOOK_URL: ${{ secrets.JANDI_WEBHOOK_URL }}
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: python scripts/notify_jandi.py
