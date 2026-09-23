@@ -4,7 +4,7 @@ import argparse, json, re
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
-from briefing_lib import is_duplicate, validate_briefing
+from briefing_lib import enrich_story_images, is_duplicate, validate_briefing
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -52,11 +52,12 @@ def main() -> int:
     payload["stories"] = unique
     errors = validate_briefing(payload, today)
     if errors: raise ValueError("; ".join(errors))
+    images_added = enrich_story_images(payload)
     DATA.mkdir(exist_ok=True)
     rendered = json.dumps(payload, ensure_ascii=False, indent=2)
     destination.write_text(rendered, encoding="utf-8")
     (DATA / "latest.json").write_text(rendered, encoding="utf-8")
-    print(f"Imported {len(unique)} verified stories into {destination}")
+    print(f"Imported {len(unique)} verified stories into {destination}; publisher card images found: {images_added}")
     return 0
 
 if __name__ == "__main__": raise SystemExit(main())

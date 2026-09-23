@@ -1,7 +1,7 @@
 const dataPath=document.body.dataset.briefingPath||'data/latest.json';
 const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-const legacyStory=s=>s.summary?s:{...s,shortTitle:s.title,date:'',country:'',sourceName:s.source_name||'',sourceUrl:s.source_url||'',imageUrl:s.image||'',summary:s.core||'',whyItMatters:s.why||'',background:'관련 산업 동향을 원문에서 확인하세요.',technology:s.tech||'',marketOutlook:'시장 흐름을 지속적으로 확인해야 합니다.',businessOpportunity:s.business||'',actionPoint:s.business||'',keywords:[]};
-const normalized=d=>({...d,stories:(d.stories||[]).map(legacyStory),flowerWatch:d.flowerWatch||[],mostImportantChange:d.mostImportantChange||d.summary,attentionPoints:d.attentionPoints||[],actions:d.actions||[]});
+const legacyStory=s=>s.summary?s:{...s,shortTitle:s.title,date:'',country:'',sourceName:s.source_name||'',sourceUrl:s.source_url||'',imageUrl:s.image||'',summary:s.core||'',whyItMatters:s.why||'',background:'관련 산업 동향을 원문에서 확인하세요.',technology:s.tech||'',marketOutlook:'시장 흐름을 지속적으로 확인해야 합니다.',keywords:[]};
+const normalized=d=>({...d,stories:(d.stories||[]).map(legacyStory),flowerWatch:d.flowerWatch||[],mostImportantChange:d.mostImportantChange||d.summary,attentionPoints:d.attentionPoints||[]});
 const pathBase=dataPath.includes('../../')?'../../':dataPath.includes('../')?'../':'';
 
 function fallbackFor(category=''){
@@ -14,20 +14,19 @@ function fallbackFor(category=''){
 function imageFor(story){return story.imageUrl?esc(story.imageUrl):`${pathBase}assets/fallback/${fallbackFor(story.category)}`}
 function storyCard(s,i){
   const fallback=`${pathBase}assets/fallback/${fallbackFor(s.category)}`;
-  return `<article class="story"><div class="story-visual"><img src="${imageFor(s)}" alt="${esc(s.title)}" loading="lazy" onerror="this.onerror=null;this.src='${fallback}'"><div class="story-number">0${i+1}</div><div class="story-tag">${esc(s.category)}</div></div><div class="story-content"><div class="story-meta">${esc(s.date)} · ${esc(s.country)}</div><h2>${esc(s.title)}</h2><p class="story-lead">${esc(s.summary)}</p><div class="mini-block"><b>왜 중요한가</b><p>${esc(s.whyItMatters)}</p></div><div class="mini-block"><b>새로운 기술·제품·서비스</b><p>${esc(s.technology)}</p></div><div class="mini-block"><b>시장 변화 및 전망</b><p>${esc(s.marketOutlook)}</p></div><div class="mini-block"><b>실무·사업 활용 포인트</b><p>${esc(s.actionPoint||s.businessOpportunity)}</p></div><a class="source-link" target="_blank" rel="noopener noreferrer" href="${esc(s.sourceUrl)}">원문 보기 → ${esc(s.sourceName)}</a></div></article>`;
+  return `<article class="story"><div class="story-visual"><img src="${imageFor(s)}" alt="${esc(s.title)}" loading="lazy" onerror="this.onerror=null;this.src='${fallback}'"><div class="story-number">0${i+1}</div><div class="story-tag">${esc(s.category)}</div></div><div class="story-content"><div class="story-meta">${esc(s.date)} · ${esc(s.country)}</div><h2>${esc(s.title)}</h2><p class="story-lead">${esc(s.summary)}</p><div class="mini-block"><b>왜 중요한가</b><p>${esc(s.whyItMatters)}</p></div><div class="mini-block"><b>새로운 기술·제품·서비스</b><p>${esc(s.technology)}</p></div><div class="mini-block"><b>시장 변화 및 전망</b><p>${esc(s.marketOutlook)}</p></div><a class="source-link" target="_blank" rel="noopener noreferrer" href="${esc(s.sourceUrl)}">원문 보기 → ${esc(s.sourceName)}</a></div></article>`;
 }
 function renderFlowerWatch(items){
   if(!items.length)return;
   document.getElementById('flowerWatchSection').hidden=false;
-  document.getElementById('flowerWatch').innerHTML=items.map(x=>`<article class="flower-watch-card"><small>${esc(x.flower)}</small><h3>${esc(x.variety||'품종 동향')}</h3><strong>${esc(x.signal)}</strong><p>${esc(x.evidence)}</p><div>${esc(x.actionPoint)}</div><a href="${esc(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">근거 보기 · ${esc(x.sourceName)}</a></article>`).join('');
+  document.getElementById('flowerWatch').innerHTML=items.map(x=>`<article class="flower-watch-card"><small>${esc(x.flower)}</small><h3>${esc(x.variety||'품종 동향')}</h3><strong>${esc(x.signal)}</strong><p>${esc(x.evidence)}</p><a href="${esc(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">근거 보기 · ${esc(x.sourceName)}</a></article>`).join('');
 }
 async function loadBriefing(){
   const r=await fetch(dataPath,{cache:'no-store'});if(!r.ok)throw Error('브리핑을 불러오지 못했습니다.');
   const d=normalized(await r.json());document.title=`${d.date} | 농업·화훼·원예 브리핑`;
   for(const id of ['briefingDate','footerDate'])document.getElementById(id).textContent=d.date;
   document.getElementById('briefingSummary').textContent=d.summary;document.getElementById('signal').textContent=d.signal;
-  renderFlowerWatch(d.flowerWatch);document.getElementById('stories').innerHTML=d.stories.map(storyCard).join('');
-  document.getElementById('actionPoints').innerHTML=d.actions.map((a,i)=>`<div class="action-card"><div class="n">0${i+1}</div><h4>${esc(a.title)}</h4><p>${esc(a.detail)}</p></div>`).join('');observeStories();
+  renderFlowerWatch(d.flowerWatch);document.getElementById('stories').innerHTML=d.stories.map(storyCard).join('');observeStories();
 }
 function observeStories(){if(!('IntersectionObserver'in window)){document.querySelectorAll('.story').forEach(x=>x.classList.add('show'));return}const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target)}}),{threshold:.12});document.querySelectorAll('.story').forEach(x=>io.observe(x))}
 async function loadArchive(){try{const base=pathBase;const r=await fetch(`${base}data/archive.json`,{cache:'no-store'});const xs=await r.json();const q=document.getElementById('archiveList');q.innerHTML=xs.map(x=>`<a class="archive-item" href="${base}briefing/${esc(x.date)}/"><strong>${esc(x.title)}</strong><span>${esc(x.date)} · ${esc(x.signal)}</span></a>`).join('');if(document.querySelector('main').dataset.archivePage==='true')renderArchivePage(xs,base)}catch(e){console.warn('Archive unavailable',e)}}

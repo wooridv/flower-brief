@@ -29,9 +29,18 @@
     }
   ],
   "actions": [
-    {"title": "장미 신상품 5종 소싱 카드 만들기", "detail": "수상·신상품 발표 품종을 출발점으로 품종명, 공급사, 꽃머리·줄기 규격, 수명, 검역, 예상 판매처를 한 장의 비교표로 정리합니다."},
-    {"title": "절화 품종 시험 기준 통일", "detail": "시험재배 시 개화 소요일·등급률·절화 수명·클레임 유형·촬영 이미지를 품종별로 같은 포맷에 쌓아 다음 시즌 도입 판단에 사용합니다."},
-    {"title": "온실 에너지 실증 파트너 탐색", "detail": "조명·환경제어 공급사와 협의할 때 전력량뿐 아니라 생육·품질·물 사용량을 함께 측정하는 소규모 실증안을 요청합니다."}
+    {
+      "title": "장미 신상품 5종 소싱 카드 만들기",
+      "detail": "수상·신상품 발표 품종을 출발점으로 품종명, 공급사, 꽃머리·줄기 규격, 수명, 검역, 예상 판매처를 한 장의 비교표로 정리합니다."
+    },
+    {
+      "title": "절화 품종 시험 기준 통일",
+      "detail": "시험재배 시 개화 소요일·등급률·절화 수명·클레임 유형·촬영 이미지를 품종별로 같은 포맷에 쌓아 다음 시즌 도입 판단에 사용합니다."
+    },
+    {
+      "title": "온실 에너지 실증 파트너 탐색",
+      "detail": "조명·환경제어 공급사와 협의할 때 전력량뿐 아니라 생육·품질·물 사용량을 함께 측정하는 소규모 실증안을 요청합니다."
+    }
   ],
   "stories": [
     {
@@ -42,7 +51,7 @@
       "category": "화훼 · 절화 · 품종",
       "sourceName": "Details Flowers",
       "sourceUrl": "https://blog.detailsflowers.com/blog/rosaprima-wins-best-in-show-for-the-second-consecutive-year-at-safs-2026-outstanding-varieties-competition",
-      "imageUrl": "",
+      "imageUrl": "https://blog.detailsflowers.com/hubfs/2026%20Blog%20Post%20HeadersTemplates%20(1)-Sep-02-2026-01-51-56-1869-PM.png",
       "summary": "Details Flowers는 2026 SAF Outstanding Varieties Competition에서 Rosaprima가 스프레이 장미 부문 1·2위, Other Cut Flower Best in Class, 가든 장미 부문 2위를 기록했다고 전했습니다. 행사는 400명 이상 화훼 전문가가 모인 SAF 연례 행사에서 열렸습니다.",
       "whyItMatters": "수상 결과가 국내 판매성을 보장하지는 않지만, 플로리스트가 평가하는 외관·차별성 측면에서 신규 장미 품종의 우선 검토 후보를 좁히는 외부 신호가 됩니다.",
       "background": "절화 장미는 품종명만으로 상품성이 결정되지 않고, 꽃머리·색상·수명·물류 내구성·시즌 공급 안정성이 함께 평가됩니다.",
@@ -50,7 +59,13 @@
       "marketOutlook": "프리미엄 절화 시장은 희소한 색상과 형태를 찾는 수요와 반복 공급 가능한 품질 사이의 균형이 중요해질 가능성이 있습니다.",
       "businessOpportunity": "수상 품종군을 공급사 미팅의 출발점으로 사용하고, 국내 도매·웨딩·플로리스트 채널별로 소량 테스트 상품을 설계할 수 있습니다.",
       "actionPoint": "스프레이·가든 장미 후보별로 절화 수명, 색상, 계절별 공급, 최소 주문량을 확인하는 샘플 평가표를 만드세요.",
-      "keywords": ["스프레이장미", "가든장미", "절화", "신품종", "소싱"]
+      "keywords": [
+        "스프레이장미",
+        "가든장미",
+        "절화",
+        "신품종",
+        "소싱"
+      ]
     },
     {
       "title": "미국 특수절화 업계, 가을호에서 18개 육종사·공급사의 신상품 소개",
@@ -60,7 +75,7 @@
       "category": "화훼 · 신품종 · 유통",
       "sourceName": "American Floral Alliance",
       "sourceUrl": "https://www.cafgs.org/news/",
-      "imageUrl": "",
+      "imageUrl": "https://www.cafgs.org/news/",
       "summary": "American Floral Alliance의 2026년 9월 화훼 뉴스 안내에는 가을호가 18개 주요 육종사와 공급사의 신상품 소개, 재배자 보고를 담았다고 나옵니다. 도매 화훼 B2B 플랫폼 관련 소식도 함께 소개됐습니다.",
       "whyItMatters": "신상품 정보가 단순 카탈로그가 아니라 재배자 보고·도매 재고 가시성과 결합되면, 품종 도입과 판매채널 기획을 동시에 검토할 수 있습니다.",
       "background": "절화와 화분 신상품은 출하 시기, 줄기·꽃 규격, 유통 수명, 재배 난이도가 달라 동일한 기준으로 비교하기 어렵습니다.",
@@ -68,7 +83,13 @@
       "marketOutlook": "품종 소싱과 도매 재고 정보가 더 빠르게 연결될수록 공급사는 품종 설명 자료와 사용 장면을 표준화할 필요가 커질 수 있습니다.",
       "businessOpportunity": "신상품을 품목별로 분류해 국내 도매상·플로리스트용 소개 카드와 대리점 교육자료로 재가공할 수 있습니다.",
       "actionPoint": "신상품 후보를 절화·화분·잎소재로 나누고, 채널별 예상 판매 기간과 샘플 발주 기준을 정하세요.",
-      "keywords": ["특수절화", "신상품", "육종사", "도매", "B2B"]
+      "keywords": [
+        "특수절화",
+        "신상품",
+        "육종사",
+        "도매",
+        "B2B"
+      ]
     },
     {
       "title": "캐나다, 상업 온실에서 에너지 효율형 조명 기술 실증 지원 발표",
@@ -78,7 +99,7 @@
       "category": "시설원예 · LED 재배",
       "sourceName": "Agriculture and Agri-Food Canada",
       "sourceUrl": "https://www.canada.ca/en/agriculture-agri-food/news/2026/09/minister-macdonald-announces-up-to-nearly-895000-to-develop-and-test-new-clean-technology-to-benefit-canadas-indoor-agriculture-sector.html",
-      "imageUrl": "",
+      "imageUrl": "https://www.canada.ca/en/agriculture-agri-food/news/2026/09/minister-macdonald-announces-up-to-nearly-895000-to-develop-and-test-new-clean-technology-to-benefit-canadas-indoor-agriculture-sector.html",
       "summary": "캐나다 농식품부는 SmartGRO Bioengineering의 상업 규모 온실 조명 기술 개발·시험에 최대 약 89만5천 캐나다달러를 지원한다고 발표했습니다. Calgary의 Hydragreens Produce 온실에서 실증하고, 에너지 효율과 연중 실내농업 생산성을 검증하는 계획입니다.",
       "whyItMatters": "LED·조명 도입은 장비 사양 비교만으로 판단하기 어렵습니다. 실제 온실에서 전력 사용량, 작물 품질, 생산성, 고객 도입 가능성을 함께 검증하는 방식이 핵심이 되고 있습니다.",
       "background": "지원 프로그램은 에너지 효율, 정밀농업, 바이오경제를 우선 분야로 두고 있으며, 해당 프로젝트에는 상업 온실과 대학·농업기관·생산자가 참여합니다.",
@@ -86,7 +107,13 @@
       "marketOutlook": "시설원예 투자 제안은 조명 단품보다 실증 데이터와 도입 후 운영비·품질 결과를 제시하는 쪽으로 이동할 가능성이 있습니다.",
       "businessOpportunity": "화훼 재배사는 주력 절화 품목을 대상으로 광량·전력·개화·등급률을 함께 측정하는 조명 실증 패키지를 공급사와 기획할 수 있습니다.",
       "actionPoint": "조명 교체 검토 시 전력량뿐 아니라 절화 수명·꽃색·개화 시기·등급률을 포함한 실증 지표를 계약서에 넣으세요.",
-      "keywords": ["LED", "온실", "에너지효율", "실증", "시설원예"]
+      "keywords": [
+        "LED",
+        "온실",
+        "에너지효율",
+        "실증",
+        "시설원예"
+      ]
     },
     {
       "title": "WUR, 에너지·물·공간을 연계하는 차세대 온실 연구 프로젝트 소개",
@@ -104,7 +131,13 @@
       "marketOutlook": "시설원예 프로젝트는 개별 기자재 경쟁뿐 아니라 에너지 조달·물 관리·지역 파트너십을 포함한 전체 운영 설계 경쟁으로 확장될 수 있습니다.",
       "businessOpportunity": "온실 신축·증설 검토 시 인근 산업시설의 폐열·용수·전력 조건을 사전 조사해 사업성 검토 항목으로 만들 수 있습니다.",
       "actionPoint": "신규 온실 후보지별로 열원, 전력 피크, 용수, 배수, 인근 산업체를 같은 체크리스트로 비교하세요.",
-      "keywords": ["환경제어", "폐열", "물관리", "스마트온실", "에너지"]
+      "keywords": [
+        "환경제어",
+        "폐열",
+        "물관리",
+        "스마트온실",
+        "에너지"
+      ]
     },
     {
       "title": "GreenTech North America, CEA 산업 컨퍼런스·엑스포를 9월 개최",
@@ -122,7 +155,13 @@
       "marketOutlook": "기술 공급사는 단일 장비보다 재배 성과와 운영 데이터를 결합한 제안으로 차별화하려는 흐름이 이어질 수 있습니다.",
       "businessOpportunity": "전시 참가사·발표 주제를 품목, 기술, 지역, 한국 파트너 적합성 기준으로 정리하면 해외 공급사 발굴 리스트로 활용할 수 있습니다.",
       "actionPoint": "해외 전시회별로 관심 기술 3개와 접촉할 공급사 10개를 미리 정하고, 미팅 질문지를 표준화하세요.",
-      "keywords": ["CEA", "GreenTech", "해외전시", "스마트팜", "공급사"]
+      "keywords": [
+        "CEA",
+        "GreenTech",
+        "해외전시",
+        "스마트팜",
+        "공급사"
+      ]
     }
   ]
 }

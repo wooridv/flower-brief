@@ -70,4 +70,4 @@ python scripts/notify_jandi.py
 
 Actions 실행 로그에서 `Generated ... with N verified stories`, Pages 배포 URL, `JANDI response status=200`을 확인합니다. GitHub Actions cron은 정각보다 늦게 시작될 수 있습니다. URL `HEAD` 요청을 차단하는 일부 언론사는 검증에서 빠질 수 있으며, 이미지가 없는 경우 UI의 카테고리 배경 그래픽을 사용합니다. 현재 URL 페이지 응답성과 출처 URL 생존 여부를 확인하지만, 기사 본문을 법적·편집적으로 완전 검증하는 사람의 검수까지 대체하지는 않습니다.
 
-향후에는 공식 RSS 수집원을 추가하고, URL 확인을 GET fallback과 OG 이미지 캐시로 확장하며, GitHub Pages 배포 완료 상태를 재확인하는 단계와 관리용 편집 화면을 추가할 수 있습니다.
+기사 카드 이미지는 원문이 공개한 OG/Twitter 대표 이미지를 자동으로 읽어 표시합니다. 이미지를 복제·저장하지 않고 원문 호스트의 URL을 사용하며, 제공되지 않거나 로딩이 막히면 업종별 기본 일러스트로 대체됩니다. 기존 데이터는 `python scripts/enrich_images.py --all`로 보완할 수 있습니다.
