@@ -44,7 +44,7 @@ jobs:
         env:
           FLOWER_SERVICE_KEY: ${{ secrets.FLOWER_SERVICE_KEY }}
           REPORT_BASE_URL: ${{ steps.deployment.outputs.page_url }}
-          BACKFILL_DAYS: '20'
+          BACKFILL_DAYS: '8'
         run: python brief.py --out site --dry-run
       - name: Generate horticulture industry news
         id: news
@@ -86,7 +86,7 @@ jobs:
           FLOWER_SERVICE_KEY: ${{ secrets.FLOWER_SERVICE_KEY }}
           JANDI_AUCTION_WEBHOOK_URL: ${{ secrets.JANDI_AUCTION_WEBHOOK_URL }}
           REPORT_BASE_URL: ${{ steps.deployment.outputs.page_url }}
-          BACKFILL_DAYS: '20'
+          BACKFILL_DAYS: '8'
         run: python brief.py --out site
       - name: Notify horticulture-industry-news JANDI
         if: steps.news.outcome == 'success' && (github.event_name == 'schedule' || inputs.send_notifications)
